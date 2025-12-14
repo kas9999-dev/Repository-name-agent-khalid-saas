@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nashr – تجربة التوليد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      background: #0b1220;
+      color: #e6ebf2;
+      font-family: system-ui;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+    textarea, select, button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 12px;
+      font-size: 15px;
+    }
+    textarea { min-height: 140px; }
+    button {
+      background: #4da3ff;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    pre {
+      background: #111a2e;
+      padding: 20px;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>🧠 Nashr – تجربة التوليد الذكي</h1>
+
+    <textarea id="text" placeholder="اكتب الفكرة هنا..."></textarea>
+
+    <select id="platform">
+      <option value="LinkedIn">LinkedIn</option>
+      <option value="X">X</option>
+      <option value="Both">LinkedIn + X</option>
+    </select>
+
+    <button onclick="run()">توليد المحتوى</button>
+
+    <pre id="result">—</pre>
+  </div>
+
+<script>
+async function run() {
+  const res = await fetch("/api/run", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: document.getElementById("text").value,
+      platform: document.getElementById("platform").value
+    })
+  });
+  const data = await res.json();
+  document.getElementById("result").textContent =
+    data.output || data.error || "حدث خطأ";
+}
+</script>
+</body>
+</html>

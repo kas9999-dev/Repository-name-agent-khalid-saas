@@ -11,8 +11,6 @@ const app = express();
 
 /**
  * CORS (Demo-safe)
- * - If FRONTEND_ORIGIN is set (e.g. https://your-landing.netlify.app), allow only that origin.
- * - Otherwise allow all (OK for private demo, but tighten for production).
  */
 const FRONTEND_ORIGIN = (process.env.FRONTEND_ORIGIN || "").trim();
 app.use(
@@ -28,8 +26,9 @@ app.use(express.json({ limit: "2mb" }));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve frontend as static (single deploy: backend + frontend together)
-app.use(express.static(path.join(__dirname, "../frontend")));
+// Serve frontend as static
+const FRONTEND_DIR = path.join(__dirname, "../frontend");
+app.use(express.static(FRONTEND_DIR));
 
 function requireEnv(name) {
   const v = process.env[name];
@@ -45,7 +44,6 @@ async function callOpenAI({ system, user }) {
     throw err;
   }
 
-  // Ensure fetch exists (Node 18+)
   if (typeof fetch !== "function") {
     const err = new Error(
       "Missing global fetch. Please run on Node.js 18+ (recommended: Node 20/22)."
@@ -86,75 +84,15 @@ async function callOpenAI({ system, user }) {
   return data?.choices?.[0]?.message?.content?.trim() || "";
 }
 
-/** ---------------------------
- * Prompt builders
- * -------------------------- */
 function buildSystemPrompt() {
   return [
     "أنت محرّك كتابة محتوى احترافي متعدد المنصات.",
     "اكتب بالعربية الفصحى السلسة، وبأسلوب واضح، وبلا مبالغة ولا ادعاءات غير قابلة للتحقق.",
-    "لا تخترع أخبارًا أو أرقامًا أو مصادر.",
+    "إذا طُلب ربط 'ترند' فليكن ربطًا ذكيًا وأخلاقيًا وبدون تضليل.",
     "قدّم مخرجات جاهزة للنشر، مع تقسيم مناسب للمنصة.",
-    "عند صياغة X اجعلها أقصر وأكثر مباشرة.",
-    "عند صياغة LinkedIn اجعلها أعمق مع تقسيم فقرات.",
-    "عند صياغة Instagram اجعلها سهلة القراءة ويمكن إضافة نقاط/سطرين بين كل فقرة.",
   ].join("\n");
 }
 
-function normalizeTone(tone) {
-  const t = String(tone || "").trim().toLowerCase();
-  if (!t) return "احترافية";
-  if (t === "professional") return "احترافية";
-  if (t === "executive") return "تنفيذية (C-level)";
-  if (t === "friendly") return "ودّية";
-  if (t === "educational") return "تثقيفية";
-  return tone;
-}
-
-function normalizePlatform(p) {
-  const v = String(p || "").trim().toLowerCase();
-  if (!v || v === "all" || v === "both") return "all";
-  if (v === "linkedin") return "linkedin";
-  if (v === "x" || v === "twitter") return "x";
-  if (v === "instagram" || v === "ig") return "instagram";
-  return "all";
-}
-
-function buildUserPromptForGenerate({ idea, tone, platform }) {
-  const toneAr = normalizeTone(tone);
-  const p = normalizePlatform(platform);
-
-  const platformInstruction =
-    p === "linkedin"
-      ? "اكتب نسخة واحدة مخصصة لـ LinkedIn."
-      : p === "x"
-      ? "اكتب نسخة واحدة مخصصة لـ X (Twitter)."
-      : p === "instagram"
-      ? "اكتب نسخة واحدة مخصصة لـ Instagram."
-      : "اكتب 3 نسخ منفصلة: LinkedIn ثم X ثم Instagram.";
-
-  return [
-    `النبرة: ${toneAr}`,
-    "",
-    "المطلوب:",
-    `- ${platformInstruction}`,
-    "- اكتب المحتوى جاهز للنشر مباشرة.",
-    "- أضف CTA خفيف مناسب (سطر واحد).",
-    "- أضف هاشتاقات: (LinkedIn 3-5) و (X/Instagram 5-10).",
-    "",
-    "الفكرة:",
-    String(idea || "").trim(),
-    "",
-    "تنسيق الإخراج (مهم جدًا):",
-    "- إذا كان المطلوب 3 نسخ: اكتب العناوين التالية حرفيًا:",
-    "  🟦 LinkedIn",
-    "  ⬛ X",
-    "  🟪 Instagram",
-    "ثم تحت كل عنوان النص الخاص به.",
-  ].join("\n");
-}
-
-// Legacy /api/run prompt (keep)
 function buildUserPrompt(payload) {
   const { mode, platform, tone, audience, text, trendAngle } = payload || {};
   const clean = (v) => (v ? String(v).trim() : "");
@@ -178,45 +116,19 @@ function buildUserPrompt(payload) {
     .join("\n");
 }
 
-/** ---------------------------
- * Routes
- * -------------------------- */
-
-// Health check (useful on Render/Railway)
+// Health check
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-/**
- * ✅ NEW: Endpoint expected by the updated frontend
- * POST /api/generate
- * body: { idea: string, tone?: string, platform?: 'linkedin'|'x'|'instagram'|'all' }
- */
-app.post("/api/generate", async (req, res) => {
-  try {
-    const { idea, tone, platform } = req.body || {};
-    if (!idea || !String(idea).trim()) {
-      return res.status(400).json({ ok: false, error: "Missing idea" });
-    }
-
-    const output = await callOpenAI({
-      system: buildSystemPrompt(),
-      user: buildUserPromptForGenerate({ idea, tone, platform }),
-    });
-
-    // نرجّع output كنص (الـ frontend سيتعامل معه مباشرة)
-    res.json({ ok: true, output });
-  } catch (e) {
-    const msg =
-      e?.code === "MISSING_KEY"
-        ? "Missing OPENAI_API_KEY"
-        : e?.code === "NO_FETCH"
-        ? "Server needs Node.js 18+"
-        : e?.message || "Unknown error";
-
-    res.status(e?.status || 500).json({ ok: false, error: msg });
-  }
+// صفحات الواجهة
+app.get("/", (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "landing.html"));
 });
 
-// Main run (legacy, keep)
+app.get("/app", (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "app.html"));
+});
+
+// Main run
 app.post("/api/run", async (req, res) => {
   try {
     const payload = req.body || {};
@@ -277,13 +189,12 @@ app.post("/api/suggest-trend", async (req, res) => {
   }
 });
 
-// SPA fallback (keep last)
+// Fallback: لو دخل على رابط غير موجود، رجعه للـ Landing
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(FRONTEND_DIR, "landing.html"));
 });
 
 const PORT = Number(process.env.PORT || 3000);
-// Bind to 0.0.0.0 for cloud runtimes
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Nashr server running on port ${PORT}`);
 });
