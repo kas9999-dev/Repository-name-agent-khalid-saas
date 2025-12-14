@@ -14,53 +14,158 @@
       --muted: #9aa4b2;
       --radius: 16px;
     }
-    * { box-sizing: border-box; font-family: system-ui; }
+
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont; }
+
     body {
       margin: 0;
       background: radial-gradient(circle at top, #15203a, var(--bg));
       color: var(--text);
       line-height: 1.7;
     }
+
     .container { max-width: 1100px; margin: auto; padding: 32px 20px; }
+
     header {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 60px;
+      margin-bottom: 56px; gap: 16px;
     }
+
     .badge {
       background: rgba(255,255,255,0.06);
       padding: 8px 14px;
       border-radius: 999px;
       font-size: 13px;
       color: var(--muted);
+      white-space: nowrap;
     }
-    .logo { font-weight: 700; font-size: 18px; }
-    .hero { text-align: center; margin-bottom: 80px; }
-    .hero h1 { font-size: 36px; margin-bottom: 16px; }
+
+    .logo { font-weight: 700; font-size: 18px; opacity: 0.95; }
+
+    .hero { text-align: center; margin-bottom: 72px; }
+
+    .hero h1 { font-size: 38px; margin: 0 0 14px; letter-spacing: 0.2px; }
+
     .hero p {
-      max-width: 700px; margin: auto;
-      color: var(--muted); font-size: 17px;
+      max-width: 780px;
+      margin: auto;
+      color: var(--muted);
+      font-size: 17px;
     }
+
+    .cta-row{
+      margin-top: 26px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .btn {
-      display: inline-block; margin-top: 28px;
-      padding: 14px 28px; border-radius: 999px;
-      background: var(--accent); color: #fff;
-      text-decoration: none; font-weight: 600;
+      display: inline-block;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      transition: 0.2s;
+      border: 0;
+      cursor: pointer;
     }
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .btn.secondary{
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 600;
+    }
+
+    .note {
+      margin-top: 14px;
+      font-size: 13px;
+      color: rgba(230,235,242,0.65);
+    }
+
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px; margin-bottom: 80px;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-bottom: 70px;
     }
+
     .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+      border: 1px solid rgba(255,255,255,0.09);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 22px;
+      min-height: 140px;
     }
+
+    .card h3 { margin: 0 0 10px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .section-title{
+      font-size: 18px;
+      margin: 0 0 14px;
+      opacity: 0.95;
+    }
+
+    .how {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 70px;
+    }
+
+    .how .card p { font-size: 14.5px; }
+
+    .steps{
+      margin: 14px 0 0;
+      padding: 0 18px 0 0;
+      color: rgba(230,235,242,0.75);
+      font-size: 14px;
+    }
+
+    .steps li { margin: 8px 0; }
+
+    .contact-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .contact-box a {
+      flex: 1;
+      min-width: 240px;
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .whatsapp { background: #25D366; color: #fff; }
+    .email {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 600;
+    }
+
     footer {
-      text-align: center; color: var(--muted);
-      font-size: 13px; padding: 32px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 28px 0;
       border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .hero h1 { font-size: 28px; }
     }
   </style>
 </head>
@@ -76,18 +181,83 @@
     <section class="hero">
       <h1>منصة نشر المحتوى الذكي<br>للشركات والقيادة</h1>
       <p>
-        Nashr تساعدك على تحويل أفكارك إلى محتوى احترافي وجاهز للنشر
-        عبر LinkedIn و X و Instagram — مع الحفاظ على هوية علامتك.
+        Nashr تساعدك على تحويل أفكارك إلى محتوى احترافي وجاهز للنشر عبر LinkedIn و X و Instagram وغيرها —
+        مع الحفاظ على هوية علامتك وجودة رسالتك، وبمخرجات واضحة قابلة للتنفيذ.
       </p>
-    <a href="/app" class="btn">
-  ابدأ التجربة
-</a>
 
+      <div class="cta-row">
+        <!-- ✅ CTA to /app (NOT WhatsApp) -->
+        <a href="/app" class="btn">ابدأ التجربة</a>
+
+        <!-- Optional secondary button -->
+        <a href="#contact" class="btn secondary">اطلب عرضًا توضيحيًا</a>
+      </div>
+
+      <div class="note">
+        عند الضغط على "ابدأ التجربة" ستنتقل مباشرة إلى صفحة النظام (/app).
+      </div>
+    </section>
+
+    <h2 class="section-title">ماذا ستحصل عليه؟</h2>
     <section class="features">
-      <div class="card"><h3>مخرجات لكل منصة</h3><p>صياغات مختلفة دون تكرار.</p></div>
-      <div class="card"><h3>زوايا قوية</h3><p>Hook + CTA + Hashtags ذكية.</p></div>
-      <div class="card"><h3>هوية العلامة</h3><p>نبرة موحدة ورسائل واضحة.</p></div>
-      <div class="card"><h3>جاهز للتوسع</h3><p>ربط حسابات ونشر مباشر.</p></div>
+      <div class="card">
+        <h3>مخرجات لكل منصة</h3>
+        <p>نفس الفكرة بصياغات مختلفة تناسب LinkedIn و X و Instagram دون تكرار.</p>
+      </div>
+
+      <div class="card">
+        <h3>زوايا قوية</h3>
+        <p>Hook + CTA + Hashtags ذكية تُبنى حسب الهدف والجمهور.</p>
+      </div>
+
+      <div class="card">
+        <h3>توافق مع هوية العلامة</h3>
+        <p>نبرة موحّدة ورسائل واضحة حتى عند النشر عبر عدة منصات.</p>
+      </div>
+
+      <div class="card">
+        <h3>جاهز للتوسع</h3>
+        <p>ربط حسابات ونشر مباشر لاحقًا مع صلاحيات وحوكمة (نسخة SaaS).</p>
+      </div>
+    </section>
+
+    <h2 class="section-title">كيف تبدأ بسرعة؟</h2>
+    <section class="how">
+      <div class="card">
+        <h3>خطوات بسيطة</h3>
+        <p>هذه الصفحة للتعريف. صفحة النظام الفعلية موجودة على المسار <b>/app</b>.</p>
+        <ol class="steps">
+          <li>اكتب الفكرة أو الموضوع.</li>
+          <li>اختر المنصة (LinkedIn / X / كلاهما).</li>
+          <li>اضغط "توليد المحتوى" واحصل على نص جاهز للنشر.</li>
+        </ol>
+      </div>
+
+      <div class="card" id="contact">
+        <h3>التواصل والتفعيل</h3>
+        <p>
+          إذا رغبت بتفعيل النسخة السحابية، أو تخصيص الهوية، أو إضافة حسابات ونشر مباشر —
+          تواصل معنا وسنرتّب عرضًا توضيحيًا.
+        </p>
+
+        <div class="contact-box">
+          <a
+            href="https://wa.me/966581588609?text=مرحباً،%20أرغب%20في%20عرض%20توضيحي%20لمنصة%20Nashr"
+            target="_blank"
+            class="whatsapp"
+            rel="noopener"
+          >
+            تواصل عبر WhatsApp
+          </a>
+
+          <a
+            href="mailto:info@kpi.com.sa?subject=طلب%20معلومات%20عن%20منصة%20Nashr"
+            class="email"
+          >
+            info@kpi.com.sa
+          </a>
+        </div>
+      </div>
     </section>
 
     <footer>
