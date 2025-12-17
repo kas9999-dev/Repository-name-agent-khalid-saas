@@ -1,17 +1,64 @@
 import OpenAI from "openai";
 
-/**
- * POST /api/run
- * Body: { text: string, platform?: "LinkedIn"|"X"|"Both", tone?: string, audience?: string }
- * Returns: { ok: true, output: string }
- */
+const X_MAX = 280;
+
+function extractXSection(fullText) {
+  // نحاول نلقط قسم X بعد "X:" أو "X" أو "Twitter"
+  const t = String(fullText || "").trim();
+
+  // 1) نمط: "X:" في سطر
+  let m =
+    t.match(/\n?X\s*:\s*\n([\s\S]*?)$/i) ||
+    t.match(/\n?X\s*\n([\s\S]*?)$/i) ||
+    t.match(/\n?Twitter\s*:\s*\n([\s\S]*?)$/i);
+
+  if (m && m[1]) return m[1].trim();
+
+  // 2) إذا النص كله يبدو قصير (ربما X فقط)
+  return t;
+}
+
+function replaceXSection(fullText, newX) {
+  const t = String(fullText || "").trim();
+
+  // لو عندنا "X:" نستبدل ما بعده
+  if (/(\n?X\s*:\s*\n)/i.test(t)) {
+    return t.replace(/(\n?X\s*:\s*\n)([\s\S]*?)$/i, `$1${newX.trim()}`);
+  }
+
+  // لو عندنا "X" كسطر
+  if (/(\n?X\s*\n)/i.test(t)) {
+    return t.replace(/(\n?X\s*\n)([\s\S]*?)$/i, `$1${newX.trim()}`);
+  }
+
+  // لو لا، نخليه كما هو (غالبًا X فقط)
+  return newX.trim();
+}
+
+function hardCutToMaxChars(str, maxChars) {
+  const s = String(str || "").trim();
+  if (s.length <= maxChars) return s;
+  // قصّ آمن بدون كسر كبير: نحاول نقص عند آخر فاصلة/نقطة/مسافة قبل الحد
+  const slice = s.slice(0, maxChars);
+  const cutAt = Math.max(
+    slice.lastIndexOf(" "),
+    slice.lastIndexOf("،"),
+    slice.lastIndexOf("."),
+    slice.lastIndexOf("؛"),
+    slice.lastIndexOf("!"),
+    slice.lastIndexOf("?")
+  );
+  const out = (cutAt > 120 ? slice.slice(0, cutAt) : slice).trim();
+  return out.length <= maxChars ? out : slice.trim();
+}
+
 export default async function apiRun(req, res) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({
         ok: false,
-        error: "Missing OPENAI_API_KEY (set it in Render Environment Variables).",
+        error: "Missing OPENAI_API_KEY (set it in Render Environment Variables)."
       });
     }
 
@@ -21,7 +68,7 @@ export default async function apiRun(req, res) {
       text,
       platform = "Both",
       tone = "احترافية",
-      audience = "رواد الأعمال",
+      audience = "رواد الأعمال"
     } = req.body || {};
 
     const inputText = String(text || "").trim();
@@ -29,90 +76,118 @@ export default async function apiRun(req, res) {
       return res.status(400).json({ ok: false, error: "text is required" });
     }
 
-    // حماية بسيطة من إدخالات ضخمة (تسبب بطء/تكلفة/أخطاء)
-    if (inputText.length > 5000) {
-      return res.status(400).json({
-        ok: false,
-        error: "text is too long (max 5000 characters).",
-      });
-    }
+    // ======================
+    // Prompt (STRICT VERSION)
+    // ======================
+    const prompt = `
+أنت مساعد كتابة محتوى احترافي متخصص في منصات التواصل الاجتماعي.
+
+اكتب محتوى جاهز للنشر وفق البيانات التالية:
+
+Platform: ${platform}
+Tone: ${tone}
+Audience: ${audience}
+
+الفكرة / الموضوع:
+${inputText}
+
+قواعد الإخراج (إلزامية):
+- لا تكتب أي شرح تقني أو ملاحظات خارج النص النهائي.
+- النص يجب أن يكون جاهزًا للنشر والنسخ مباشرة.
+
+إذا Platform = Both:
+1) LinkedIn:
+   - محتوى احترافي غني.
+   - منسق بفقرات أو نقاط واضحة.
+   - مناسب للنشر على LinkedIn.
+
+2) X (Twitter):
+   - لا يتجاوز 280 حرفًا (شرط إلزامي).
+   - فكرة واحدة واضحة ومباشرة.
+   - بدون فقرات طويلة أو ترقيم مطوّل.
+   - يمكن إضافة هاشتاق أو اثنين كحد أقصى.
+
+إذا Platform = X فقط:
+- النص يجب أن يكون ≤ 280 حرفًا.
+- فكرة واحدة فقط.
+
+إذا Platform = LinkedIn فقط:
+- محتوى احترافي مفصّل نسبيًا.
+- منظم وسهل القراءة.
+
+أخرج النتيجة بالنص النهائي فقط.
+`.trim();
 
     const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
-    // نطلب إخراج منظم جدًا (حتى لو كانت الفكرة عامة)
-    const system = `
-أنت مساعد كتابة محتوى عربي احترافي متخصص في LinkedIn و X.
-مهمتك: تحويل فكرة المستخدم إلى محتوى جاهز للنشر.
-الالتزام:
-- لا تكتب أي شرح تقني أو تبريرات.
-- لا تذكر أنك نموذج ذكاء اصطناعي.
-- اجعل النص قابل للنسخ مباشرة.
-- استخدم عربي فصيح مبسّط.
-`.trim();
-
-    const user = `
-المعطيات:
-Platform = ${platform}
-Tone = ${tone}
-Audience = ${audience}
-
-الفكرة/الموضوع:
-${inputText}
-
-قواعد الإخراج (إلزامي):
-1) إذا Platform = Both:
-   - اطبع بالضبط هذا التنسيق:
-     LinkedIn:
-     <نص لينكدإن>
-
-     X:
-     <نص X>
-2) إذا Platform = LinkedIn: اطبع فقط:
-   LinkedIn:
-   <نص لينكدإن>
-3) إذا Platform = X: اطبع فقط:
-   X:
-   <نص X>
-
-قواعد أسلوب LinkedIn:
-- 6 إلى 12 سطر تقريبًا
-- بداية قوية + نقاط واضحة + خاتمة CTA بسيطة
-- هاشتاقات 3 إلى 6 في النهاية
-
-قواعد أسلوب X:
-- مختصر وقوي (حتى 280 حرف تقريبًا)
-- هاشتاقات 1 إلى 3
-`.trim();
-
     const response = await client.responses.create({
       model,
-      input: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      // إعدادات تحفظ جودة ثابتة
-      temperature: 0.7,
-      max_output_tokens: 700,
+      input: prompt
     });
 
-    const raw =
+    let outputText =
       response.output_text ||
-      (response.output?.[0]?.content?.[0]?.text ?? "") ||
+      response.output?.[0]?.content?.[0]?.text ||
       "";
 
-    const output = String(raw).trim();
-
-    if (!output) {
+    outputText = String(outputText || "").trim();
+    if (!outputText) {
       return res.status(500).json({ ok: false, error: "Empty output from model" });
     }
 
-    return res.json({ ok: true, output });
+    // ======================
+    // Fail-safe for X length
+    // ======================
+    const needX = platform === "X" || platform === "Both";
+    if (needX) {
+      const xText = extractXSection(outputText);
+      if (xText.length > X_MAX) {
+        // محاولة اختصار واحدة بالموديل
+        const tightenPrompt = `
+اختصر النص التالي ليصبح مناسبًا للنشر على X بشرط صارم:
+- لا يتجاوز ${X_MAX} حرفًا (إلزامي).
+- حافظ على نفس الفكرة الأساسية.
+- جملة/جملتين كحد أقصى.
+- هاشتاق واحد أو اثنين كحد أقصى (اختياري).
+- أخرج النص النهائي فقط بدون شرح.
+
+النص:
+${xText}
+`.trim();
+
+        const resp2 = await client.responses.create({
+          model,
+          input: tightenPrompt
+        });
+
+        let shorter =
+          resp2.output_text ||
+          resp2.output?.[0]?.content?.[0]?.text ||
+          "";
+
+        shorter = String(shorter || "").trim();
+        if (!shorter) shorter = xText;
+
+        // قصّ نهائي (نادر) إذا بقي أطول من 280
+        if (shorter.length > X_MAX) {
+          shorter = hardCutToMaxChars(shorter, X_MAX);
+        }
+
+        // استبدال قسم X داخل الناتج الكلي
+        outputText = replaceXSection(outputText, shorter);
+      }
+    }
+
+    return res.json({
+      ok: true,
+      output: outputText
+    });
+
   } catch (err) {
-    // تشخيص في logs بدون تفاصيل حساسة
-    console.error("api-run error:", err?.message || err);
+    console.error("api-run error:", err);
     return res.status(500).json({
       ok: false,
-      error: err?.message || "Unknown server error",
+      error: err?.message || "Unknown server error"
     });
   }
 }
