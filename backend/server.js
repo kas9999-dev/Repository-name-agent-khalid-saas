@@ -2,17 +2,13 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
 import apiRun from "./api-run.js";
-
-dotenv.config();
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
 /* ===============================
    🔒 Preview Access Gate (GLOBAL)
-   MUST be before static
 ================================== */
 
 function decodeBasicAuth(header) {
@@ -37,25 +33,18 @@ const PREVIEW_PASS = process.env.PREVIEW_PASS || "";
 
 if (REQUIRE_PREVIEW_AUTH) {
   app.use((req, res, next) => {
-    // health check فقط بدون باسورد
     if (req.path === "/health") return next();
 
     const creds = decodeBasicAuth(req.headers.authorization);
     if (!creds) return unauthorized(res);
 
-    if (
-      creds.user === PREVIEW_USER &&
-      creds.pass === PREVIEW_PASS
-    ) {
-      return next();
-    }
-
+    if (creds.user === PREVIEW_USER && creds.pass === PREVIEW_PASS) return next();
     return unauthorized(res);
   });
 }
 
 /* ===============================
-   📂 Static Frontend (NOW PROTECTED)
+   📂 Static Frontend
 ================================== */
 
 const __filename = fileURLToPath(import.meta.url);
@@ -80,7 +69,7 @@ app.get("/health", (req, res) => {
   res.json({
     ok: true,
     service: "Nashr",
-    previewAuth: REQUIRE_PREVIEW_AUTH
+    previewAuth: REQUIRE_PREVIEW_AUTH,
   });
 });
 
@@ -91,6 +80,4 @@ app.post("/api/run", (req, res) => apiRun(req, res));
 ================================== */
 
 const port = process.env.PORT || 3000;
-app.listen(port, () =>
-  console.log(`Nashr running on :${port}`)
-);
+app.listen(port, () => console.log(`Nashr running on :${port}`));
