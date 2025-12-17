@@ -2,155 +2,107 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>Nashr – تجربة التوليد</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #15203a, #0b1220);
-      color: #e6ebf2;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 40px 20px;
-    }
-
-    h1 { text-align: center; margin-bottom: 10px; }
-    .subtitle { text-align: center; color: #9aa4b2; margin-bottom: 22px; }
-
-    .card {
-      background: #111a2e;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-      color: #9aa4b2;
-    }
-
-    textarea, select {
-      width: 100%;
-      background: #0b1220;
-      color: #e6ebf2;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 14px;
-      margin-bottom: 14px;
-      outline: none;
-    }
-
-    textarea {
-      min-height: 140px;
-      resize: vertical;
-    }
-
-    button {
-      width: 100%;
-      background: #4da3ff;
-      color: #fff;
-      border: none;
-      padding: 14px 26px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .note {
-      text-align: center;
-      font-size: 13px;
-      color: #9aa4b2;
-      margin-top: 10px;
-    }
-
-    .output {
-      white-space: pre-wrap;
-      line-height: 1.8;
-      font-size: 15px;
-      background: #0b1220;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      padding: 14px;
-      min-height: 120px;
-    }
-
-    .meta {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-      font-size: 12px;
-      color: #9aa4b2;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 26px;
-      color: #9aa4b2;
-      font-size: 13px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nashr — App</title>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 
 <body>
-  <div class="container">
-
-    <h1>🧠 Nashr – تجربة التوليد الذكي</h1>
-    <div class="subtitle">
-      اكتب الفكرة، اختر المنصة واللغة، واحصل على محتوى جاهز للنشر
-    </div>
-
-    <div class="card">
-      <label>الفكرة / الموضوع</label>
-      <textarea id="text" placeholder="اكتب فكرتك هنا..."></textarea>
-
-      <label>المنصة</label>
-      <select id="platform">
-        <option value="Both">LinkedIn + X</option>
-        <option value="LinkedIn">LinkedIn</option>
-        <option value="X">X</option>
-      </select>
-
-      <label>اللغة</label>
-      <select id="language">
-        <option value="ar" selected>العربية</option>
-        <option value="en">English</option>
-      </select>
-
-      <!-- قيم ثابتة (نسخة اختبار) -->
-      <input type="hidden" id="tone" value="احترافية" />
-      <input type="hidden" id="audience" value="رواد الأعمال" />
-
-      <button id="btn" type="button">توليد المحتوى</button>
-
-      <div class="note">النتيجة قابلة للتعديل قبل النشر</div>
-    </div>
-
-    <div class="card">
-      <label>النتيجة</label>
-      <div id="output" class="output">—</div>
-
-      <div class="meta">
-        <span id="status">الحالة: جاهز</span>
-        <span id="debug">—</span>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-title">Nashr</div>
+        <div class="brand-sub">Demo Version • 2025 ©</div>
       </div>
-    </div>
+      <div class="header-links">
+        <a href="/health" class="chip">health</a>
+        <span class="chip">API: /api/run</span>
+      </div>
+    </header>
 
-    <footer>Nashr © 2025 · Demo Version</footer>
+    <main class="app-main">
+      <section class="card">
+        <div class="field">
+          <label for="text">الفكرة / الموضوع</label>
+          <textarea id="text" rows="6" placeholder="اكتب الفكرة هنا..."></textarea>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="platform">المنصة</label>
+            <select id="platform">
+              <option value="linkedin_x" selected>LinkedIn + X</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="x">X</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="tone">النبرة</label>
+            <select id="tone">
+              <option value="professional" selected>احترافية</option>
+              <option value="friendly">ودّية</option>
+              <option value="bold">جريئة</option>
+              <option value="insightful">تثقيفية</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="audience">الجمهور</label>
+            <select id="audience">
+              <option value="business" selected>رواد الأعمال</option>
+              <option value="executives">قيادات</option>
+              <option value="general">عام</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="language">اللغة</label>
+            <select id="language">
+              <option value="ar" selected>العربية</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btn" class="btn-primary" onclick="run()">توليد المحتوى</button>
+          <button class="btn-secondary" onclick="copyAll()">نسخ الكل</button>
+
+          <div class="meta">
+            <span id="status" class="chip">—</span>
+            <span id="debug" class="chip">—</span>
+          </div>
+        </div>
+
+        <div class="hint">
+          النتيجة قابلة للتعديل قبل النشر
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card output-card">
+          <div class="output-head">
+            <div class="title">X</div>
+            <div class="counter"><span id="xCount">0</span>/280</div>
+            <button class="btn-mini" onclick="copyText('outX')">نسخ X</button>
+          </div>
+          <pre id="outX" class="output"></pre>
+        </div>
+
+        <div class="card output-card">
+          <div class="output-head">
+            <div class="title">LinkedIn</div>
+            <button class="btn-mini" onclick="copyText('outLinkedIn')">نسخ LinkedIn</button>
+          </div>
+          <pre id="outLinkedIn" class="output"></pre>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      Nashr © 2025 • Demo Version
+    </footer>
   </div>
 
 <script>
@@ -166,13 +118,16 @@ async function run() {
   const language = document.getElementById("language").value; // ar | en
 
   if (!text) {
-    alert("يرجى كتابة الفكرة أو الموضوع");
+    alert(language === "en" ? "Please type a topic/idea." : "يرجى كتابة الفكرة أو الموضوع");
     return;
   }
 
   btn.disabled = true;
   status.textContent = "⏳ جاري التوليد...";
   debug.textContent = "";
+
+  // تفريغ المخرجات قبل التوليد
+  renderOutputs({ x: "", linkedin: "" });
 
   try {
     const res = await fetch("/api/run", {
@@ -183,7 +138,7 @@ async function run() {
         platform,
         tone,
         audience,
-        language
+        language   // ← مهم
       })
     });
 
@@ -193,8 +148,8 @@ async function run() {
       throw new Error(data.error || "فشل التوليد");
     }
 
-    document.getElementById("output").textContent =
-      data.output || "لا يوجد محتوى";
+    // ✅ عرض الناتج مباشرة بدون split
+    renderOutputs(data.output || { x:"", linkedin:"" });
 
     status.textContent = "✅ تم التوليد";
     debug.textContent = `HTTP ${res.status}`;
@@ -207,8 +162,39 @@ async function run() {
   }
 }
 
-document.getElementById("btn").addEventListener("click", run);
-</script>
+function renderOutputs(output) {
+  const outX = document.getElementById("outX");
+  const outLinkedIn = document.getElementById("outLinkedIn");
 
+  const xText = (output?.x || "").trim();
+  const liText = (output?.linkedin || "").trim();
+
+  outX.textContent = xText || "—";
+  outLinkedIn.textContent = liText || "—";
+
+  setXCounter(xText);
+}
+
+function setXCounter(text) {
+  const xCount = document.getElementById("xCount");
+  const len = (text || "").length;
+  xCount.textContent = String(len);
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  const txt = el?.textContent || "";
+  if (!txt || txt === "—") return;
+  navigator.clipboard.writeText(txt);
+}
+
+function copyAll() {
+  const x = document.getElementById("outX").textContent || "";
+  const li = document.getElementById("outLinkedIn").textContent || "";
+  const combined =
+    `X:\n${x}\n\n---\n\nLinkedIn:\n${li}`.trim();
+  navigator.clipboard.writeText(combined);
+}
+</script>
 </body>
 </html>
