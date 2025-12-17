@@ -2,302 +2,384 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>Nashr – تجربة التوليد</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nashr — App</title>
+
+  <!-- لو عندك styles.css استخدمه، وإلا الملف هذا فيه CSS داخلي يكفي -->
+  <link rel="stylesheet" href="./styles.css" />
+
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#15203a,#0b1220);color:#e6ebf2}
-    .container{max-width:1100px;margin:auto;padding:40px 20px}
-    h1{text-align:center;margin-bottom:12px}
-    .sub{text-align:center;color:#9aa4b2;margin-bottom:22px}
-    .grid{display:grid;grid-template-columns:1fr;gap:16px}
-    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
-    .card{background:#111a2e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px}
-    label{display:block;margin-bottom:6px;font-size:14px;color:#9aa4b2}
-    textarea,select{width:100%;background:#0b1220;color:#e6ebf2;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;font-size:14px;margin-bottom:14px;outline:none}
-    textarea{min-height:120px;resize:vertical}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    button{background:#4da3ff;color:#fff;border:none;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer}
-    button.secondary{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e6ebf2}
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .output{white-space:pre-wrap;line-height:1.8;font-size:14px;background:#0b1220;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px;min-height:220px}
-    .meta{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:10px;color:#9aa4b2;font-size:12px;flex-wrap:wrap}
-    .pill{border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.04)}
-    .split-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .title{font-weight:900}
-    .counter{opacity:.9}
-    footer{text-align:center;margin-top:22px;color:#9aa4b2;font-size:13px}
-    a{color:#9fc7ff}
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      background: radial-gradient(1200px 600px at 20% 0%, #16244a 0%, rgba(22,36,74,0) 60%),
+                  radial-gradient(900px 500px at 90% 30%, #0f2a2a 0%, rgba(15,42,42,0) 55%),
+                  #071022;
+      color: #e8eefc;
+    }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 18px 40px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom: 16px; }
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand small { opacity: .7; font-weight: 600; margin-inline-start: 8px; }
+
+    .panel {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    }
+
+    .grid { display:grid; gap: 14px; }
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 980px) { .grid.two { grid-template-columns: 1fr; } }
+
+    label { display:block; font-size: 13px; opacity: .9; margin-bottom: 6px; }
+    textarea, select, input {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.20);
+      color: #e8eefc;
+      padding: 12px 12px;
+      outline: none;
+    }
+    textarea { min-height: 160px; resize: vertical; }
+
+    .row { display:flex; gap: 12px; align-items: end; }
+    .row > .col { flex:1; }
+
+    .actions { display:flex; gap: 10px; align-items:center; flex-wrap: wrap; margin-top: 10px; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #4a84ff;
+      color: #0b1020;
+      box-shadow: 0 10px 20px rgba(74,132,255,0.25);
+    }
+    button.secondary {
+      background: rgba(255,255,255,0.10);
+      color: #e8eefc;
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    button:disabled { opacity: .55; cursor:not-allowed; }
+
+    .metaBar {
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: .85;
+    }
+    .pill {
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.20);
+    }
+    a { color: #8fb2ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .outCard {
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 220px;
+      white-space: pre-wrap;
+      line-height: 1.65;
+    }
+
+    .outHeader { display:flex; justify-content:space-between; align-items:center; gap: 10px; margin-bottom: 10px; }
+    .outHeader .title { font-weight: 800; opacity: .95; }
+    .counter { opacity: .85; font-weight: 700; }
+
+    .muted { opacity: .7; }
+    .statusOk { color: #8dffb5; font-weight: 800; }
+    .statusBad { color: #ff8d8d; font-weight: 800; }
+
+    .footer { text-align:center; opacity:.7; margin-top: 18px; font-size: 13px; }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>🧠 Nashr – تجربة التوليد الذكي</h1>
-    <div class="sub">اكتب الفكرة، اختر المنصة، واضغط توليد</div>
-
-    <div class="card">
-      <label>الفكرة / الموضوع</label>
-      <textarea id="text" placeholder="اكتب فكرتك هنا..."></textarea>
-
-      <div class="row">
-        <div style="flex:1;min-width:220px">
-          <label>المنصة</label>
-          <select id="platform">
-            <option value="Both">LinkedIn + X</option>
-            <option value="LinkedIn">LinkedIn</option>
-            <option value="X">X</option>
-          </select>
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
-          <button id="runBtn" type="button">توليد المحتوى</button>
-          <button id="copyAllBtn" class="secondary" type="button" disabled>نسخ الكل</button>
-        </div>
-      </div>
-
-      <div class="meta">
-        <span class="pill">API: /api/run</span>
-        <span class="pill"><a href="/health" target="_blank" rel="noopener">health</a></span>
-        <span class="pill" id="status">الحالة: جاهز</span>
-        <span class="pill" id="debug">—</span>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">Nashr <small>© 2025 • Demo Version</small></div>
+      <div class="pill">
+        <a id="healthLink" href="/health" target="_blank" rel="noopener">health</a>
+        <span class="muted">•</span>
+        <span class="muted">API:</span>
+        <span id="apiPath">/api/run</span>
       </div>
     </div>
 
-    <div class="grid">
-      <!-- X -->
-      <div class="card">
-        <div class="split-head">
-          <div class="title">X</div>
-          <div class="pill counter" id="xCounter">280 / 0</div>
+    <div class="panel">
+      <div class="grid">
+        <div>
+          <label for="text">الفكرة / الموضوع</label>
+          <textarea id="text" placeholder="اكتب الفكرة هنا…"></textarea>
         </div>
-        <div id="outX" class="output">—</div>
-        <div class="meta">
-          <span class="pill" id="xState">—</span>
-          <button id="copyXBtn" class="secondary" type="button" disabled>نسخ X</button>
+
+        <div class="row">
+          <div class="col">
+            <label for="platform">المنصة</label>
+            <select id="platform">
+              <option value="LinkedIn + X">LinkedIn + X</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="X">X</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="tone">النبرة</label>
+            <select id="tone">
+              <option value="احترافية" selected>احترافية</option>
+              <option value="ودية">ودية</option>
+              <option value="مقنعة">مقنعة</option>
+              <option value="مختصرة">مختصرة</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="audience">الجمهور</label>
+            <select id="audience">
+              <option value="رواد الأعمال" selected>رواد الأعمال</option>
+              <option value="المدراء التنفيذيون">المدراء التنفيذيون</option>
+              <option value="الشركات العائلية">الشركات العائلية</option>
+              <option value="المستثمرون">المستثمرون</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btn">توليد المحتوى</button>
+          <button id="copyAll" class="secondary">نسخ الكل</button>
+
+          <span class="pill">
+            <span class="muted">HTTP</span>
+            <span id="httpCode">—</span>
+          </span>
+
+          <span class="pill">
+            <span class="muted">الحالة:</span>
+            <span id="status" class="muted">جاهز</span>
+          </span>
+
+          <span class="pill">
+            <span class="muted">Logs:</span>
+            <span id="debug" class="muted">—</span>
+          </span>
         </div>
       </div>
+    </div>
 
-      <!-- LinkedIn -->
-      <div class="card">
-        <div class="split-head">
+    <div style="height:14px"></div>
+
+    <div class="grid two">
+      <div class="panel">
+        <div class="outHeader">
           <div class="title">LinkedIn</div>
-          <div class="pill" id="liState">—</div>
+          <div class="actions" style="margin:0">
+            <button id="copyLinkedIn" class="secondary">نسخ LinkedIn</button>
+          </div>
         </div>
-        <div id="outLinkedIn" class="output">—</div>
-        <div class="meta">
-          <span class="pill">—</span>
-          <button id="copyLiBtn" class="secondary" type="button" disabled>نسخ LinkedIn</button>
+        <div id="outLinkedIn" class="outCard muted">—</div>
+      </div>
+
+      <div class="panel">
+        <div class="outHeader">
+          <div class="title">X</div>
+          <div class="counter"><span id="xCount">0</span>/280</div>
+        </div>
+        <div id="outX" class="outCard muted">—</div>
+        <div class="actions" style="margin-top:10px">
+          <button id="copyX" class="secondary">نسخ X</button>
         </div>
       </div>
     </div>
 
-    <footer>Nashr © 2025 · Demo Version</footer>
+    <div class="footer">Nashr • App</div>
   </div>
 
-<script>
-  // ===== Elements =====
-  const btn = document.getElementById("runBtn");
-  const status = document.getElementById("status");
-  const debug = document.getElementById("debug");
+  <script>
+    const $ = (id) => document.getElementById(id);
 
-  const outX = document.getElementById("outX");
-  const outLinkedIn = document.getElementById("outLinkedIn");
+    const textEl = $("text");
+    const platformEl = $("platform");
+    const toneEl = $("tone");
+    const audienceEl = $("audience");
 
-  const xCounter = document.getElementById("xCounter");
-  const xState = document.getElementById("xState");
-  const liState = document.getElementById("liState");
+    const btn = $("btn");
+    const copyAllBtn = $("copyAll");
+    const copyLinkedInBtn = $("copyLinkedIn");
+    const copyXBtn = $("copyX");
 
-  const copyAllBtn = document.getElementById("copyAllBtn");
-  const copyXBtn = document.getElementById("copyXBtn");
-  const copyLiBtn = document.getElementById("copyLiBtn");
+    const outLinkedIn = $("outLinkedIn");
+    const outX = $("outX");
+    const xCount = $("xCount");
+    const httpCode = $("httpCode");
+    const status = $("status");
+    const debug = $("debug");
 
-  // ===== State =====
-  let lastFull = "";
-  let lastX = "";
-  let lastLi = "";
-
-  // ===== Helpers =====
-  function normalize(s){
-    return String(s || "")
-      .replace(/\r/g, "")
-      .replace(/\u200f|\u200e/g, "") // RTL/LTR marks
-      .trim();
-  }
-
-  function setXCounter(text){
-    const t = normalize(text);
-    xCounter.textContent = `280 / ${t.length}`;
-    if (t.length > 280) {
-      xState.textContent = `⚠️ تجاوز 280 (الآن ${t.length})`;
-    } else if (t.length === 0) {
-      xState.textContent = "—";
-    } else {
-      xState.textContent = `جاهز ✅ (${t.length}/280)`;
-    }
-  }
-
-  async function copyToClipboard(text){
-    const t = normalize(text);
-    if(!t) return;
-    try{
-      await navigator.clipboard.writeText(t);
-    }catch(e){
-      // fallback
-      const ta = document.createElement("textarea");
-      ta.value = t;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-    }
-  }
-
-  // ===== Split & Render (FIXED) =====
-  function splitOutput(full){
-    const t = normalize(full);
-
-    // علامات محتملة لعناوين الأقسام (مرنة)
-    const reLI = /(^|\n)\s*(LinkedIn|لينكد?ن)\s*[:：]?\s*(\n|$)/i;
-    const reX  = /(^|\n)\s*(X|اكس|إكس)\s*[:：]?\s*(\n|$)/i;
-
-    const mLi = reLI.exec(t);
-    const mX  = reX.exec(t);
-
-    if (!mLi || !mX) {
-      return { okSplit: false, raw: t, li: "", x: "" };
+    function setXCounter(n) {
+      xCount.textContent = String(n || 0);
     }
 
-    const liStart = mLi.index + mLi[0].length;
-    const xStart  = mX.index + mX[0].length;
-
-    // تأكد من الترتيب
-    if (xStart > liStart) {
-      const li = t.slice(liStart, mX.index).trim();
-      const x  = t.slice(xStart).trim();
-      return { okSplit: true, li, x, raw: t };
-    } else {
-      const x  = t.slice(xStart, mLi.index).trim();
-      const li = t.slice(liStart).trim();
-      return { okSplit: true, li, x, raw: t };
+    function setStatusOk(msg) {
+      status.className = "statusOk";
+      status.textContent = msg;
     }
-  }
 
-  function render(platform, fullText){
-    lastFull = normalize(fullText);
+    function setStatusBad(msg) {
+      status.className = "statusBad";
+      status.textContent = msg;
+    }
 
-    // reset
-    outLinkedIn.innerText = "—";
-    outX.innerText = "—";
-    liState.textContent = "—";
-    setXCounter("");
+    async function copyText(t) {
+      const s = String(t || "").trim();
+      if (!s) return false;
+      await navigator.clipboard.writeText(s);
+      return true;
+    }
 
-    lastLi = "";
-    lastX = "";
+    function normalizePlatformForAPI(v) {
+      const s = String(v || "").toLowerCase();
+      if (s.includes("+")) return "Both";
+      if (s.includes("linkedin") && !s.includes("x")) return "LinkedIn";
+      if (s === "x") return "X";
+      return "Both";
+    }
 
-    const parts = splitOutput(lastFull);
+    // =========================
+    // ✅ لا نعتمد على splitOutput إطلاقًا
+    // =========================
+    async function run() {
+      const text = String(textEl.value || "").trim();
+      if (!text) {
+        setStatusBad("فضلاً اكتب الفكرة أولاً");
+        return;
+      }
 
-    if(platform === "Both"){
-      if(parts.okSplit){
-        lastLi = parts.li || "";
-        lastX  = parts.x || "";
-        outLinkedIn.innerText = lastLi || "—";
-        outX.innerText = lastX || "—";
-        liState.textContent = lastLi ? "جاهز ✅" : "غير موجود";
-        setXCounter(lastX || "");
-      } else {
-        // ✅ Fallback: لا نخلي الناتج يختفي
-        lastLi = parts.raw || lastFull;
-        outLinkedIn.innerText = lastLi || "—";
-        outX.innerText = "—";
-        liState.textContent = "تم عرض النص كاملًا (تعذر التقسيم) ⚠️";
-        setXCounter("");
+      const payload = {
+        text,
+        platform: normalizePlatformForAPI(platformEl.value),
+        tone: toneEl.value,
+        audience: audienceEl.value,
+      };
+
+      // reset UI
+      btn.disabled = true;
+      httpCode.textContent = "—";
+      debug.textContent = "request...";
+      outLinkedIn.textContent = "—";
+      outX.textContent = "—";
+      outLinkedIn.classList.add("muted");
+      outX.classList.add("muted");
+      setXCounter(0);
+      setStatusOk("جاري التوليد...");
+
+      try {
+        const res = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        httpCode.textContent = String(res.status);
+        debug.textContent = "parsing json...";
+
+        const data = await res.json().catch(() => null);
+        if (!data) {
+          setStatusBad("تعذّر قراءة JSON من السيرفر");
+          debug.textContent = "Invalid JSON";
+          return;
+        }
+
+        if (!res.ok || data.ok === false) {
+          setStatusBad("فشل");
+          debug.textContent = data.error || "Unknown error";
+          return;
+        }
+
+        // ✅ نأخذ linkedin و x مباشرة (المسار الصحيح)
+        const linkedinText = (data.linkedin ?? data.output?.linkedin ?? "").toString().trim();
+        const xText = (data.x ?? data.output?.x ?? "").toString().trim();
+
+        // fallback لو رجع output/raw نصّي
+        const rawText = (data.output ?? data.raw ?? "").toString().trim();
+
+        if (linkedinText || xText) {
+          outLinkedIn.textContent = linkedinText || "—";
+          outX.textContent = xText || "—";
+          outLinkedIn.classList.toggle("muted", !linkedinText);
+          outX.classList.toggle("muted", !xText);
+          setXCounter((xText || "").length);
+
+          setStatusOk("تم");
+          debug.textContent = `ok • xChars=${(xText || "").length}`;
+        } else {
+          // قديم/غير متوقع
+          outLinkedIn.textContent = rawText || "—";
+          outX.textContent = "—";
+          outLinkedIn.classList.toggle("muted", !rawText);
+          outX.classList.add("muted");
+          setXCounter(0);
+
+          setStatusOk("تم");
+          debug.textContent = "fallback: raw only";
+        }
+
+      } catch (e) {
+        setStatusBad("فشل");
+        debug.textContent = e?.message || String(e);
+      } finally {
+        btn.disabled = false;
       }
     }
 
-    if(platform === "LinkedIn"){
-      lastLi = parts.raw || lastFull;
-      outLinkedIn.innerText = lastLi || "—";
-      outX.innerText = "—";
-      liState.textContent = lastLi ? "جاهز ✅" : "—";
-      setXCounter("");
-    }
+    btn.addEventListener("click", run);
 
-    if(platform === "X"){
-      lastX = parts.raw || lastFull;
-      outX.innerText = lastX || "—";
-      outLinkedIn.innerText = "—";
-      liState.textContent = "—";
-      setXCounter(lastX || "");
-    }
+    copyLinkedInBtn.addEventListener("click", async () => {
+      const ok = await copyText(outLinkedIn.textContent);
+      if (ok) setStatusOk("تم نسخ LinkedIn");
+    });
 
-    // Buttons enablement
-    copyAllBtn.disabled = !lastFull;
-    copyLiBtn.disabled = !lastLi;
-    copyXBtn.disabled = !lastX;
+    copyXBtn.addEventListener("click", async () => {
+      const ok = await copyText(outX.textContent);
+      if (ok) setStatusOk("تم نسخ X");
+    });
 
-    // Debug: طول المخرجات
-    debug.textContent = `len ${lastFull.length}`;
-  }
+    copyAllBtn.addEventListener("click", async () => {
+      const li = String(outLinkedIn.textContent || "").trim();
+      const x = String(outX.textContent || "").trim();
+      const all = [
+        "LinkedIn:",
+        li || "—",
+        "",
+        "X:",
+        x || "—"
+      ].join("\n");
+      const ok = await copyText(all);
+      if (ok) setStatusOk("تم نسخ الكل");
+    });
 
-  // ===== Actions =====
-  btn.addEventListener("click", run);
-
-  copyAllBtn.addEventListener("click", async () => {
-    await copyToClipboard(lastFull);
-  });
-  copyXBtn.addEventListener("click", async () => {
-    await copyToClipboard(lastX);
-  });
-  copyLiBtn.addEventListener("click", async () => {
-    await copyToClipboard(lastLi);
-  });
-
-  async function run(){
-    const text = document.getElementById("text").value.trim();
-    const platform = document.getElementById("platform").value;
-
-    if(!text){ alert("اكتب الفكرة أولاً"); return; }
-
-    btn.disabled = true;
-    status.textContent = "الحالة: جاري الإرسال...";
-    debug.textContent = "—";
-
-    outLinkedIn.innerText = "⏳ جاري التوليد...";
-    outX.innerText = "⏳ جاري التوليد...";
-    liState.textContent = "—";
-    setXCounter("");
-
-    lastFull = "";
-    lastX = "";
-    lastLi = "";
-    copyAllBtn.disabled = true;
-    copyLiBtn.disabled = true;
-    copyXBtn.disabled = true;
-
-    try{
-      const res = await fetch("/api/run", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ text, platform, tone:"احترافية", audience:"رواد الأعمال" })
-      });
-
-      const data = await res.json();
-      if(!res.ok || !data.ok) throw new Error(data.error || ("HTTP " + res.status));
-
-      status.textContent = "الحالة: تم ✅";
-      debug.textContent = "HTTP " + res.status;
-
-      render(platform, data.output || "");
-    }catch(e){
-      status.textContent = "الحالة: فشل ❌";
-      debug.textContent = "تحقق من /health و Logs";
-      outLinkedIn.innerText = "❌ خطأ: " + (e.message || e);
-      outX.innerText = "—";
-      liState.textContent = "—";
-      setXCounter("");
-    }finally{
-      btn.disabled = false;
-    }
-  }
-</script>
+    // Enter/Cmd+Enter لتوليد سريع
+    textEl.addEventListener("keydown", (e) => {
+      const isCmdEnter = (e.metaKey || e.ctrlKey) && e.key === "Enter";
+      if (isCmdEnter) run();
+    });
+  </script>
 </body>
 </html>
