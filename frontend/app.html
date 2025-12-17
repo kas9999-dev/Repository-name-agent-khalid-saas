@@ -4,60 +4,40 @@
   <meta charset="UTF-8" />
   <title>Nashr – تجربة التوليد</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #15203a, #0b1220);
-      color: #e6ebf2;
-    }
-    .container { max-width: 900px; margin: auto; padding: 40px 20px; }
-    h1 { text-align: center; margin-bottom: 10px; }
-    .sub { text-align: center; color: #9aa4b2; margin-bottom: 22px; }
-
-    .card {
-      background: #111a2e;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 18px;
-    }
-
-    label { display:block; margin-bottom:6px; font-size:14px; color:#9aa4b2; }
-    textarea, select {
-      width:100%; background:#0b1220; color:#e6ebf2;
-      border:1px solid rgba(255,255,255,.15);
-      border-radius:10px; padding:12px; font-size:14px;
-      margin-bottom:14px;
-    }
-    textarea { min-height:140px; resize:vertical; }
-
-    button {
-      width:100%; background:#4da3ff; color:#fff;
-      border:none; padding:14px; border-radius:12px;
-      font-size:15px; font-weight:800; cursor:pointer;
-    }
-    button:disabled { opacity:.6; cursor:not-allowed; }
-
-    .output {
-      white-space:pre-wrap; line-height:1.8; font-size:15px;
-      background:#0b1220; border:1px solid rgba(255,255,255,.12);
-      border-radius:12px; padding:14px; min-height:120px;
-    }
-
-    .meta {
-      display:flex; justify-content:space-between;
-      color:#9aa4b2; font-size:12px; margin-top:8px;
-    }
-
-    footer { text-align:center; margin-top:24px; color:#9aa4b2; font-size:13px; }
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#15203a,#0b1220);color:#e6ebf2}
+    .container{max-width:980px;margin:auto;padding:40px 20px}
+    h1{text-align:center;margin-bottom:12px}
+    .sub{text-align:center;color:#9aa4b2;margin-bottom:22px}
+    .card{background:#111a2e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:18px}
+    label{display:block;margin-bottom:6px;font-size:14px;color:#9aa4b2}
+    textarea,select{width:100%;background:#0b1220;color:#e6ebf2;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;font-size:14px;margin-bottom:14px;outline:none}
+    textarea{min-height:140px;resize:vertical}
+    button{background:#4da3ff;color:#fff;border:none;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap}
+    .btnRow button{flex:1;min-width:160px}
+    .output{white-space:pre-wrap;line-height:1.8;font-size:15px;background:#0b1220;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px;min-height:120px}
+    .meta{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:10px;color:#9aa4b2;font-size:12px;flex-wrap:wrap}
+    .pill{border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.04)}
+    footer{text-align:center;margin-top:26px;color:#9aa4b2;font-size:13px}
+    a{color:#9fc7ff}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width: 900px){ .grid2{grid-template-columns:1fr} }
+    .sectionTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .sectionTitle strong{font-size:14px}
+    .counter{font-size:12px}
+    .ok{color:#7CFFB2}
+    .warn{color:#FFD37C}
+    .bad{color:#FF7C7C}
+    .miniRow{display:flex;gap:8px;flex-wrap:wrap}
+    .miniRow button{flex:0 0 auto;padding:10px 12px;font-size:13px;border-radius:10px}
+    .ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+    .ghost:hover{background:rgba(255,255,255,.10)}
   </style>
 </head>
-
 <body>
   <div class="container">
-
     <h1>🧠 Nashr – تجربة التوليد الذكي</h1>
     <div class="sub">اكتب الفكرة، اختر المنصة، واضغط توليد</div>
 
@@ -72,20 +52,45 @@
         <option value="X">X</option>
       </select>
 
-      <button id="runBtn" type="button">توليد المحتوى</button>
+      <div class="btnRow">
+        <button id="runBtn" type="button">توليد المحتوى</button>
+        <button id="copyAllBtn" class="ghost" type="button" disabled>نسخ الكل</button>
+      </div>
 
       <div class="meta">
-        <span>API: /api/run</span>
-        <a href="/health" target="_blank">health</a>
+        <span class="pill">API: /api/run</span>
+        <span class="pill"><a href="/health" target="_blank" rel="noopener">health</a></span>
+        <span class="pill" id="status">الحالة: جاهز</span>
+        <span class="pill" id="debug">—</span>
       </div>
     </div>
 
-    <div class="card">
-      <label>النتيجة</label>
-      <div id="output" class="output">—</div>
-      <div class="meta">
-        <span id="status">الحالة: جاهز</span>
-        <span id="debug">—</span>
+    <div class="grid2">
+      <div class="card">
+        <div class="sectionTitle">
+          <strong>LinkedIn</strong>
+          <span class="pill" id="liState">—</span>
+        </div>
+        <div id="outLinkedIn" class="output">—</div>
+        <div class="meta">
+          <div class="miniRow">
+            <button id="copyLiBtn" class="ghost" type="button" disabled>نسخ LinkedIn</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sectionTitle">
+          <strong>X</strong>
+          <span class="counter pill" id="xCount">0 / 280</span>
+        </div>
+        <div id="outX" class="output">—</div>
+        <div class="meta">
+          <div class="miniRow">
+            <button id="copyXBtn" class="ghost" type="button" disabled>نسخ X</button>
+          </div>
+          <span class="pill" id="xHint">—</span>
+        </div>
       </div>
     </div>
 
@@ -93,45 +98,188 @@
   </div>
 
 <script>
-const btn = document.getElementById("runBtn");
-const out = document.getElementById("output");
-const status = document.getElementById("status");
-const debug = document.getElementById("debug");
+  const btn = document.getElementById("runBtn");
+  const copyAllBtn = document.getElementById("copyAllBtn");
+  const copyLiBtn = document.getElementById("copyLiBtn");
+  const copyXBtn = document.getElementById("copyXBtn");
 
-btn.onclick = async () => {
-  const text = document.getElementById("text").value.trim();
-  const platform = document.getElementById("platform").value;
+  const status = document.getElementById("status");
+  const debug = document.getElementById("debug");
 
-  if (!text) { alert("اكتب الفكرة أولاً"); return; }
+  const outLinkedIn = document.getElementById("outLinkedIn");
+  const outX = document.getElementById("outX");
 
-  btn.disabled = true;
-  out.textContent = "⏳ جاري التوليد...";
-  status.textContent = "الحالة: جاري الإرسال...";
-  debug.textContent = "—";
+  const xCount = document.getElementById("xCount");
+  const xHint = document.getElementById("xHint");
+  const liState = document.getElementById("liState");
 
-  try {
-    const res = await fetch("/api/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, platform })
-    });
+  let lastFull = "";
+  let lastLi = "";
+  let lastX = "";
 
-    const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || "فشل التوليد");
+  btn.addEventListener("click", run);
+  copyAllBtn.addEventListener("click", () => copyText(lastFull));
+  copyLiBtn.addEventListener("click", () => copyText(lastLi));
+  copyXBtn.addEventListener("click", () => copyText(lastX));
 
-    out.textContent = data.output || "لا يوجد ناتج";
-    status.textContent = "الحالة: تم ✅";
-    debug.textContent = "HTTP " + res.status;
+  function setXCounter(text){
+    const n = (text || "").length;
+    xCount.textContent = `${n} / 280`;
 
-  } catch (e) {
-    out.textContent = "❌ خطأ: " + e.message;
-    status.textContent = "الحالة: فشل ❌";
-    debug.textContent = "راجع /health و Logs";
-  } finally {
-    btn.disabled = false;
+    xCount.classList.remove("ok","warn","bad");
+    xHint.classList.remove("ok","warn","bad");
+
+    if(n === 0){
+      xHint.textContent = "—";
+      return;
+    }
+    if(n <= 240){
+      xCount.classList.add("ok");
+      xHint.classList.add("ok");
+      xHint.textContent = "ممتاز ✅";
+    } else if(n <= 280){
+      xCount.classList.add("warn");
+      xHint.classList.add("warn");
+      xHint.textContent = "قريب من الحد ⚠️";
+    } else {
+      xCount.classList.add("bad");
+      xHint.classList.add("bad");
+      xHint.textContent = "تجاوز 280 ❌ (سيتم اختصاره من السيرفر إن فعّلت الفلتر)";
+    }
   }
-};
-</script>
 
+  function normalize(s){
+    return String(s || "").replace(/\r/g, "").trim();
+  }
+
+  function splitOutput(full){
+    // يتوقع: "LinkedIn:" ... "\n\nX:" ...
+    const t = normalize(full);
+
+    // حاول نبحث عن X:
+    const xIdx = t.search(/\n?X\s*:\s*\n/i);
+    const liIdx = t.search(/(^|\n)LinkedIn\s*:\s*\n/i);
+
+    let li = "";
+    let x = "";
+
+    if(liIdx !== -1 && xIdx !== -1 && xIdx > liIdx){
+      li = t.slice(liIdx).replace(/(^|\n)LinkedIn\s*:\s*\n/i, "").slice(0, xIdx - liIdx).trim();
+      x = t.slice(xIdx).replace(/\n?X\s*:\s*\n/i, "").trim();
+      return { li, x };
+    }
+
+    // إذا المنصة X فقط قد يرجع نص واحد
+    // أو LinkedIn فقط يرجع نص واحد
+    return { li: "", x: "" , raw: t };
+  }
+
+  function render(platform, fullText){
+    lastFull = normalize(fullText);
+
+    // افتراضي
+    outLinkedIn.innerText = "—";
+    outX.innerText = "—";
+    liState.textContent = "—";
+    setXCounter("");
+
+    lastLi = "";
+    lastX = "";
+
+    const { li, x, raw } = splitOutput(lastFull);
+
+    if(platform === "Both"){
+      lastLi = li || "";
+      lastX = x || "";
+      outLinkedIn.innerText = lastLi || "—";
+      outX.innerText = lastX || "—";
+      liState.textContent = lastLi ? "جاهز ✅" : "غير موجود";
+      setXCounter(lastX || "");
+    }
+
+    if(platform === "LinkedIn"){
+      lastLi = raw || lastFull;
+      outLinkedIn.innerText = lastLi || "—";
+      outX.innerText = "—";
+      liState.textContent = lastLi ? "جاهز ✅" : "—";
+      setXCounter("");
+    }
+
+    if(platform === "X"){
+      lastX = raw || lastFull;
+      outX.innerText = lastX || "—";
+      outLinkedIn.innerText = "—";
+      liState.textContent = "—";
+      setXCounter(lastX || "");
+    }
+
+    // Buttons enablement
+    copyAllBtn.disabled = !lastFull;
+    copyLiBtn.disabled = !lastLi;
+    copyXBtn.disabled = !lastX;
+  }
+
+  async function copyText(text){
+    const t = normalize(text);
+    if(!t) return;
+    try{
+      await navigator.clipboard.writeText(t);
+      debug.textContent = "تم النسخ ✅";
+    }catch(e){
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = t;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      debug.textContent = "تم النسخ ✅";
+    }
+  }
+
+  async function run(){
+    const text = document.getElementById("text").value.trim();
+    const platform = document.getElementById("platform").value;
+
+    if(!text){ alert("اكتب الفكرة أولاً"); return; }
+
+    btn.disabled = true;
+    status.textContent = "الحالة: جاري الإرسال...";
+    debug.textContent = "—";
+    outLinkedIn.innerText = "⏳ جاري التوليد...";
+    outX.innerText = "⏳ جاري التوليد...";
+    liState.textContent = "—";
+    setXCounter("");
+
+    copyAllBtn.disabled = true;
+    copyLiBtn.disabled = true;
+    copyXBtn.disabled = true;
+
+    try{
+      const res = await fetch("/api/run", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ text, platform, tone:"احترافية", audience:"رواد الأعمال" })
+      });
+
+      const data = await res.json();
+      if(!res.ok || !data.ok) throw new Error(data.error || ("HTTP " + res.status));
+
+      status.textContent = "الحالة: تم ✅";
+      debug.textContent = "HTTP " + res.status;
+
+      render(platform, data.output || "");
+    }catch(e){
+      status.textContent = "الحالة: فشل ❌";
+      debug.textContent = "راجع /health و Logs";
+      outLinkedIn.innerText = "❌ خطأ: " + (e.message || e);
+      outX.innerText = "❌ خطأ: " + (e.message || e);
+      liState.textContent = "—";
+      setXCounter("");
+    }finally{
+      btn.disabled = false;
+    }
+  }
+</script>
 </body>
 </html>
