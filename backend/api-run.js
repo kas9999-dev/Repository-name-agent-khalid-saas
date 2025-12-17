@@ -6,7 +6,7 @@ export default async function apiRun(req, res) {
     if (!apiKey) {
       return res.status(500).json({
         ok: false,
-        error: "Missing OPENAI_API_KEY (set it in Render Environment Variables).",
+        error: "Missing OPENAI_API_KEY"
       });
     }
 
@@ -17,21 +17,24 @@ export default async function apiRun(req, res) {
       platform = "Both",
       tone = "احترافية",
       audience = "رواد الأعمال",
-      language = "ar", // ✅ ar | en
+      language = "ar" // ar | en
     } = req.body || {};
 
     const inputText = String(text || "").trim();
-    if (!inputText) return res.status(400).json({ ok: false, error: "text is required" });
+    if (!inputText) {
+      return res.status(400).json({ ok: false, error: "text is required" });
+    }
 
-    // ✅ سطر واحد يحدد لغة الإخراج
-    const langLine =
-      String(language).toLowerCase() === "en"
-        ? "Write the output in English."
-        : "اكتب المخرجات باللغة العربية.";
+    // 🔑 تحديد لغة الإخراج بشكل صريح
+    const languageInstruction =
+      language === "en"
+        ? "Write the content strictly in English. Do NOT use Arabic under any circumstance."
+        : "اكتب المحتوى باللغة العربية فقط.";
 
     const prompt = `
-You are a professional social content writer.
-Generate ready-to-publish content based on:
+You are a professional content writer.
+
+${languageInstruction}
 
 Platform: ${platform}
 Tone: ${tone}
@@ -41,34 +44,31 @@ Topic:
 ${inputText}
 
 Output rules:
-- Do NOT write any technical explanation.
-- ${langLine}
-- If Platform = Both: return TWO sections, exactly:
-  (LinkedIn)
-  ...text...
-  (X)
-  ...text...
-- If Platform = LinkedIn: return ONLY (LinkedIn)
-- If Platform = X: return ONLY (X)
-- X MUST be 280 characters or less (including spaces).
-- Make it clean, formatted, and copy-friendly.
+- No technical explanations.
+- If Platform = Both: provide two versions clearly labeled.
+- The content must be ready to copy and publish.
 `.trim();
 
     const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
     const response = await client.responses.create({
       model,
-      input: prompt,
+      input: prompt
     });
 
     const outputText =
-      response.output_text || response.output?.[0]?.content?.[0]?.text || "";
+      response.output_text ||
+      (response.output?.[0]?.content?.[0]?.text ?? "");
 
-    return res.json({ ok: true, output: outputText || "No output" });
+    return res.json({
+      ok: true,
+      output: outputText || ""
+    });
+
   } catch (err) {
     return res.status(500).json({
       ok: false,
-      error: err?.message || "Unknown server error",
+      error: err?.message || "Server error"
     });
   }
 }
