@@ -1,200 +1,302 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nashr — App</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 
 <body>
-  <div class="app-shell">
-    <header class="app-header">
-      <div class="brand">
-        <div class="brand-title">Nashr</div>
-        <div class="brand-sub">Demo Version • 2025 ©</div>
-      </div>
-      <div class="header-links">
-        <a href="/health" class="chip">health</a>
-        <span class="chip">API: /api/run</span>
-      </div>
-    </header>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__title">Nashr</div>
+      <div class="brand__sub">Demo Version • 2025</div>
+    </div>
 
-    <main class="app-main">
-      <section class="card">
-        <div class="field">
+    <div class="topbar__links">
+      <a class="pill" href="/health" target="_blank">health</a>
+      <a class="pill" href="/api/run" target="_blank">API: /api/run</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="grid">
+        <div class="field field--full">
           <label for="text">الفكرة / الموضوع</label>
-          <textarea id="text" rows="6" placeholder="اكتب الفكرة هنا..."></textarea>
+          <textarea id="text" rows="5" placeholder="اكتب الفكرة هنا..."></textarea>
+          <div class="hint">النتيجة قابلة للتعديل قبل النشر</div>
         </div>
 
-        <div class="row">
-          <div class="field">
-            <label for="platform">المنصة</label>
-            <select id="platform">
-              <option value="linkedin_x" selected>LinkedIn + X</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="x">X</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="tone">النبرة</label>
-            <select id="tone">
-              <option value="professional" selected>احترافية</option>
-              <option value="friendly">ودّية</option>
-              <option value="bold">جريئة</option>
-              <option value="insightful">تثقيفية</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="audience">الجمهور</label>
-            <select id="audience">
-              <option value="business" selected>رواد الأعمال</option>
-              <option value="executives">قيادات</option>
-              <option value="general">عام</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="language">اللغة</label>
-            <select id="language">
-              <option value="ar" selected>العربية</option>
-              <option value="en">English</option>
-            </select>
-          </div>
+        <div class="field">
+          <label for="platform">المنصة</label>
+          <select id="platform">
+            <option>LinkedIn + X</option>
+            <option>LinkedIn</option>
+            <option>X</option>
+          </select>
         </div>
 
-        <div class="actions">
-          <button id="btn" class="btn-primary" onclick="run()">توليد المحتوى</button>
-          <button class="btn-secondary" onclick="copyAll()">نسخ الكل</button>
+        <div class="field">
+          <label for="tone">النبرة</label>
+          <select id="tone">
+            <option>احترافية</option>
+            <option>ودية</option>
+            <option>حماسية</option>
+            <option>مختصرة</option>
+          </select>
+        </div>
 
-          <div class="meta">
-            <span id="status" class="chip">—</span>
-            <span id="debug" class="chip">—</span>
+        <div class="field">
+          <label for="audience">الجمهور</label>
+          <select id="audience">
+            <option>رواد الأعمال</option>
+            <option>المدراء التنفيذيون</option>
+            <option>المهتمون بالاستثمار</option>
+            <option>العملاء المحتملون</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="language">اللغة</label>
+          <select id="language">
+            <option value="ar" selected>العربية</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btn" class="btn" onclick="run()">توليد المحتوى</button>
+
+        <button id="copyClean" class="btn btn--ghost" onclick="copyClean()">نسخ نظيف</button>
+
+        <div class="meta">
+          <span id="status" class="status">جاهز</span>
+          <span id="debug" class="debug"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="row">
+      <div class="panel">
+        <div class="panel__head">
+          <div class="panel__title">X</div>
+          <div class="panel__tools">
+            <span class="counter" id="xCount">0/280</span>
+            <button class="mini" onclick="copyText('xOut')">نسخ X</button>
           </div>
         </div>
+        <pre class="panel__body" id="xOut"></pre>
+      </div>
 
-        <div class="hint">
-          النتيجة قابلة للتعديل قبل النشر
-        </div>
-      </section>
-
-      <section class="grid">
-        <div class="card output-card">
-          <div class="output-head">
-            <div class="title">X</div>
-            <div class="counter"><span id="xCount">0</span>/280</div>
-            <button class="btn-mini" onclick="copyText('outX')">نسخ X</button>
+      <div class="panel">
+        <div class="panel__head">
+          <div class="panel__title">LinkedIn</div>
+          <div class="panel__tools">
+            <button class="mini" onclick="copyText('liOut')">نسخ LinkedIn</button>
           </div>
-          <pre id="outX" class="output"></pre>
         </div>
+        <pre class="panel__body" id="liOut"></pre>
+      </div>
+    </section>
 
-        <div class="card output-card">
-          <div class="output-head">
-            <div class="title">LinkedIn</div>
-            <button class="btn-mini" onclick="copyText('outLinkedIn')">نسخ LinkedIn</button>
-          </div>
-          <pre id="outLinkedIn" class="output"></pre>
-        </div>
-      </section>
-    </main>
+    <section class="card history">
+      <div class="history__head">
+        <div class="history__title">آخر 3 توليدات</div>
+        <button class="mini" onclick="clearHistory()">مسح</button>
+      </div>
+      <div id="historyList" class="history__list"></div>
+    </section>
 
-    <footer class="app-footer">
-      Nashr © 2025 • Demo Version
-    </footer>
-  </div>
+    <footer class="footer">Nashr © 2025 • Demo Version</footer>
+  </main>
 
 <script>
-async function run() {
-  const btn = document.getElementById("btn");
-  const status = document.getElementById("status");
-  const debug = document.getElementById("debug");
+  const LS_KEY = "nashr_history_v1";
 
-  const text = document.getElementById("text").value.trim();
-  const platform = document.getElementById("platform").value;
-  const tone = document.getElementById("tone").value;
-  const audience = document.getElementById("audience").value;
-  const language = document.getElementById("language").value; // ar | en
-
-  if (!text) {
-    alert(language === "en" ? "Please type a topic/idea." : "يرجى كتابة الفكرة أو الموضوع");
-    return;
+  function setDirByLang(lang) {
+    const html = document.documentElement;
+    if (lang === "en") {
+      html.lang = "en";
+      html.dir = "ltr";
+    } else {
+      html.lang = "ar";
+      html.dir = "rtl";
+    }
   }
 
-  btn.disabled = true;
-  status.textContent = "⏳ جاري التوليد...";
-  debug.textContent = "";
+  function updateXCount(text) {
+    const c = document.getElementById("xCount");
+    const n = (text || "").length;
+    c.textContent = `${n}/280`;
+  }
 
-  // تفريغ المخرجات قبل التوليد
-  renderOutputs({ x: "", linkedin: "" });
+  function renderOutputs(output) {
+    const xOut = document.getElementById("xOut");
+    const liOut = document.getElementById("liOut");
 
-  try {
-    const res = await fetch("/api/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text,
-        platform,
-        tone,
-        audience,
-        language   // ← مهم
-      })
-    });
+    xOut.textContent = output?.x || "";
+    liOut.textContent = output?.linkedin || "";
 
-    const data = await res.json();
+    updateXCount(output?.x || "");
+  }
 
-    if (!res.ok || !data.ok) {
-      throw new Error(data.error || "فشل التوليد");
+  function getCleanText() {
+    const x = (document.getElementById("xOut").textContent || "").trim();
+    const li = (document.getElementById("liOut").textContent || "").trim();
+    const platform = document.getElementById("platform").value;
+
+    if (platform.includes("LinkedIn") && platform.includes("X")) {
+      return [x ? `X:\n${x}` : "", li ? `LinkedIn:\n${li}` : ""]
+        .filter(Boolean)
+        .join("\n\n---\n\n")
+        .trim();
+    }
+    if (platform.includes("LinkedIn")) return li || "";
+    return x || "";
+  }
+
+  async function copyClean() {
+    const t = getCleanText();
+    if (!t) return alert("لا يوجد محتوى لنسخه");
+    await navigator.clipboard.writeText(t);
+    toast("✅ تم النسخ (نظيف)");
+  }
+
+  async function copyText(id) {
+    const t = (document.getElementById(id).textContent || "").trim();
+    if (!t) return alert("لا يوجد محتوى لنسخه");
+    await navigator.clipboard.writeText(t);
+    toast("✅ تم النسخ");
+  }
+
+  function toast(msg) {
+    const status = document.getElementById("status");
+    status.textContent = msg;
+    setTimeout(() => status.textContent = "جاهز", 1500);
+  }
+
+  function loadHistory() {
+    const el = document.getElementById("historyList");
+    el.innerHTML = "";
+    const raw = localStorage.getItem(LS_KEY);
+    const items = raw ? JSON.parse(raw) : [];
+
+    if (!items.length) {
+      el.innerHTML = `<div class="empty">لا يوجد سجل بعد</div>`;
+      return;
     }
 
-    // ✅ عرض الناتج مباشرة بدون split
-    renderOutputs(data.output || { x:"", linkedin:"" });
-
-    status.textContent = "✅ تم التوليد";
-    debug.textContent = `HTTP ${res.status}`;
-
-  } catch (err) {
-    status.textContent = "❌ حدث خطأ";
-    debug.textContent = err.message || "Unknown error";
-  } finally {
-    btn.disabled = false;
+    items.forEach((it, idx) => {
+      const card = document.createElement("div");
+      card.className = "history__item";
+      card.innerHTML = `
+        <div class="history__meta">
+          <div>${it.platform} • ${it.language.toUpperCase()}</div>
+          <div class="history__time">${new Date(it.ts).toLocaleString()}</div>
+        </div>
+        <pre class="history__text">${escapeHtml(it.clean)}</pre>
+        <div class="history__actions">
+          <button class="mini" data-i="${idx}">نسخ</button>
+        </div>
+      `;
+      card.querySelector("button").onclick = async () => {
+        await navigator.clipboard.writeText(it.clean);
+        toast("✅ تم نسخ السجل");
+      };
+      el.appendChild(card);
+    });
   }
-}
 
-function renderOutputs(output) {
-  const outX = document.getElementById("outX");
-  const outLinkedIn = document.getElementById("outLinkedIn");
+  function saveHistory(entry) {
+    const raw = localStorage.getItem(LS_KEY);
+    const items = raw ? JSON.parse(raw) : [];
+    items.unshift(entry);
+    const trimmed = items.slice(0, 3);
+    localStorage.setItem(LS_KEY, JSON.stringify(trimmed));
+    loadHistory();
+  }
 
-  const xText = (output?.x || "").trim();
-  const liText = (output?.linkedin || "").trim();
+  function clearHistory() {
+    localStorage.removeItem(LS_KEY);
+    loadHistory();
+    toast("🗑️ تم المسح");
+  }
 
-  outX.textContent = xText || "—";
-  outLinkedIn.textContent = liText || "—";
+  function escapeHtml(s) {
+    return String(s || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
+  }
 
-  setXCounter(xText);
-}
+  async function run() {
+    const btn = document.getElementById("btn");
+    const status = document.getElementById("status");
+    const debug = document.getElementById("debug");
 
-function setXCounter(text) {
-  const xCount = document.getElementById("xCount");
-  const len = (text || "").length;
-  xCount.textContent = String(len);
-}
+    const text = document.getElementById("text").value.trim();
+    const platform = document.getElementById("platform").value;
+    const tone = document.getElementById("tone").value;
+    const audience = document.getElementById("audience").value;
+    const language = document.getElementById("language").value; // ar | en
 
-function copyText(id) {
-  const el = document.getElementById(id);
-  const txt = el?.textContent || "";
-  if (!txt || txt === "—") return;
-  navigator.clipboard.writeText(txt);
-}
+    setDirByLang(language);
 
-function copyAll() {
-  const x = document.getElementById("outX").textContent || "";
-  const li = document.getElementById("outLinkedIn").textContent || "";
-  const combined =
-    `X:\n${x}\n\n---\n\nLinkedIn:\n${li}`.trim();
-  navigator.clipboard.writeText(combined);
-}
+    if (!text) {
+      alert(language === "en" ? "Please write a topic." : "يرجى كتابة الفكرة أو الموضوع");
+      return;
+    }
+
+    btn.disabled = true;
+    status.textContent = language === "en" ? "⏳ Generating..." : "⏳ جاري التوليد...";
+    debug.textContent = "";
+
+    // clear outputs
+    renderOutputs({ x: "", linkedin: "" });
+
+    try {
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, platform, tone, audience, language })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Generation failed");
+      }
+
+      renderOutputs(data.output);
+
+      status.textContent = language === "en" ? "✅ Done" : "✅ تم التوليد";
+      debug.textContent = `HTTP ${res.status}`;
+
+      const clean = getCleanText();
+      saveHistory({
+        ts: Date.now(),
+        platform,
+        language,
+        clean
+      });
+
+    } catch (err) {
+      status.textContent = language === "en" ? "❌ Error" : "❌ حدث خطأ";
+      debug.textContent = err?.message || "Unknown error";
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // init
+  document.getElementById("language").addEventListener("change", (e) => {
+    setDirByLang(e.target.value);
+  });
+
+  loadHistory();
 </script>
 </body>
 </html>
