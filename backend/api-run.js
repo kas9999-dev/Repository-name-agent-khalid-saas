@@ -1,57 +1,5 @@
 import OpenAI from "openai";
 
-function safeStr(v) {
-  return String(v ?? "").trim();
-}
-
-function normalizePlatform(p) {
-  const s = safeStr(p).toLowerCase();
-
-  // أي صيغة فيها + أو both تعتبر Both
-  if (s.includes("+") || s.includes("both") || s.includes("linkedin+x") || s.includes("linkedin + x")) {
-    return "Both";
-  }
-
-  // لو ذكر LinkedIn فقط
-  if (s.includes("linkedin") && !s.includes("x")) return "LinkedIn";
-
-  // لو ذكر X فقط
-  if (s === "x" || (s.includes("x") && !s.includes("linkedin"))) return "X";
-
-  // افتراضي
-  return "Both";
-}
-
-function clampX(text) {
-  const t = safeStr(text);
-  return t.length > 280 ? t.slice(0, 277) + "…" : t;
-}
-
-function extractTextFromResponse(response) {
-  return (
-    response?.output_text ||
-    response?.output?.[0]?.content?.[0]?.text ||
-    ""
-  );
-}
-
-function tryParseJSON(text) {
-  const t = safeStr(text);
-  if (!t) return null;
-
-  const cleaned = t
-    .replace(/^```json/i, "")
-    .replace(/^```/i, "")
-    .replace(/```$/i, "")
-    .trim();
-
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    return null;
-  }
-}
-
 export default async function apiRun(req, res) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -64,38 +12,46 @@ export default async function apiRun(req, res) {
 
     const client = new OpenAI({ apiKey });
 
-    const body = req.body || {};
-    const inputText = safeStr(body.text);
-    const platform = normalizePlatform(body.platform || "Both");
-    const tone = safeStr(body.tone || "احترافية");
-    const audience = safeStr(body.audience || "رواد الأعمال");
+    const {
+      text,
+      platform = "Both",
+      tone = "احترافية",
+      audience = "رواد الأعمال",
+      language = "ar", // ✅ ar | en
+    } = req.body || {};
 
-    if (!inputText) {
-      return res.status(400).json({ ok: false, error: "text is required" });
-    }
+    const inputText = String(text || "").trim();
+    if (!inputText) return res.status(400).json({ ok: false, error: "text is required" });
+
+    // ✅ سطر واحد يحدد لغة الإخراج
+    const langLine =
+      String(language).toLowerCase() === "en"
+        ? "Write the output in English."
+        : "اكتب المخرجات باللغة العربية.";
 
     const prompt = `
-أنت مساعد كتابة محتوى احترافي.
+You are a professional social content writer.
+Generate ready-to-publish content based on:
 
-اكتب محتوى جاهز للنشر بناءً على:
-- Tone: ${tone}
-- Audience: ${audience}
-- Topic: ${inputText}
+Platform: ${platform}
+Tone: ${tone}
+Audience: ${audience}
 
-المطلوب (الالتزام إلزامي):
-1) أعد المخرجات بصيغة JSON فقط وبدون أي شرح أو نص خارج JSON.
-2) المفاتيح المطلوبة:
-   - "linkedin": نص لينكدإن (قد يكون طويلًا ومنسقًا).
-   - "x": نص منصة X لا يتجاوز 280 حرفًا.
-3) إذا platform = "LinkedIn": اجعل x = "".
-   إذا platform = "X": اجعل linkedin = "".
-   إذا platform = "Both": املأ الاثنين.
-4) نص X يجب أن يكون <= 280 حرفًا.
+Topic:
+${inputText}
 
-platform = "${platform}"
-
-أعد JSON فقط:
-{"linkedin":"...","x":"..."}
+Output rules:
+- Do NOT write any technical explanation.
+- ${langLine}
+- If Platform = Both: return TWO sections, exactly:
+  (LinkedIn)
+  ...text...
+  (X)
+  ...text...
+- If Platform = LinkedIn: return ONLY (LinkedIn)
+- If Platform = X: return ONLY (X)
+- X MUST be 280 characters or less (including spaces).
+- Make it clean, formatted, and copy-friendly.
 `.trim();
 
     const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
@@ -105,40 +61,10 @@ platform = "${platform}"
       input: prompt,
     });
 
-    const raw = extractTextFromResponse(response);
-    const parsed = tryParseJSON(raw);
+    const outputText =
+      response.output_text || response.output?.[0]?.content?.[0]?.text || "";
 
-    let linkedin = "";
-    let x = "";
-
-    if (parsed && typeof parsed === "object") {
-      linkedin = safeStr(parsed.linkedin);
-      x = safeStr(parsed.x);
-    } else {
-      // fallback: لو رجع نص عادي
-      if (platform === "X") {
-        x = clampX(raw);
-      } else if (platform === "LinkedIn") {
-        linkedin = raw;
-      } else {
-        linkedin = raw;
-        x = clampX(raw);
-      }
-    }
-
-    x = clampX(x);
-
-    return res.json({
-      ok: true,
-      linkedin,
-      x,
-      raw,
-      meta: {
-        platform,
-        xChars: x.length,
-        model,
-      },
-    });
+    return res.json({ ok: true, output: outputText || "No output" });
   } catch (err) {
     return res.status(500).json({
       ok: false,
