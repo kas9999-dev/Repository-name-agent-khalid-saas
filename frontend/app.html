@@ -6,34 +6,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#15203a,#0b1220);color:#e6ebf2}
-    .container{max-width:980px;margin:auto;padding:40px 20px}
+    .container{max-width:1100px;margin:auto;padding:40px 20px}
     h1{text-align:center;margin-bottom:12px}
     .sub{text-align:center;color:#9aa4b2;margin-bottom:22px}
-    .card{background:#111a2e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:#111a2e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px}
     label{display:block;margin-bottom:6px;font-size:14px;color:#9aa4b2}
     textarea,select{width:100%;background:#0b1220;color:#e6ebf2;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;font-size:14px;margin-bottom:14px;outline:none}
-    textarea{min-height:140px;resize:vertical}
-    button{background:#4da3ff;color:#fff;border:none;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer}
+    textarea{min-height:120px;resize:vertical}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{background:#4da3ff;color:#fff;border:none;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer}
+    button.secondary{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e6ebf2}
     button:disabled{opacity:.6;cursor:not-allowed}
-    .btnRow{display:flex;gap:10px;flex-wrap:wrap}
-    .btnRow button{flex:1;min-width:160px}
-    .output{white-space:pre-wrap;line-height:1.8;font-size:15px;background:#0b1220;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px;min-height:120px}
+    .output{white-space:pre-wrap;line-height:1.8;font-size:14px;background:#0b1220;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px;min-height:220px}
     .meta{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:10px;color:#9aa4b2;font-size:12px;flex-wrap:wrap}
     .pill{border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.04)}
-    footer{text-align:center;margin-top:26px;color:#9aa4b2;font-size:13px}
+    .split-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .title{font-weight:900}
+    .counter{opacity:.9}
+    footer{text-align:center;margin-top:22px;color:#9aa4b2;font-size:13px}
     a{color:#9fc7ff}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    @media (max-width: 900px){ .grid2{grid-template-columns:1fr} }
-    .sectionTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .sectionTitle strong{font-size:14px}
-    .counter{font-size:12px}
-    .ok{color:#7CFFB2}
-    .warn{color:#FFD37C}
-    .bad{color:#FF7C7C}
-    .miniRow{display:flex;gap:8px;flex-wrap:wrap}
-    .miniRow button{flex:0 0 auto;padding:10px 12px;font-size:13px;border-radius:10px}
-    .ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
-    .ghost:hover{background:rgba(255,255,255,.10)}
   </style>
 </head>
 <body>
@@ -45,16 +38,20 @@
       <label>الفكرة / الموضوع</label>
       <textarea id="text" placeholder="اكتب فكرتك هنا..."></textarea>
 
-      <label>المنصة</label>
-      <select id="platform">
-        <option value="Both">LinkedIn + X</option>
-        <option value="LinkedIn">LinkedIn</option>
-        <option value="X">X</option>
-      </select>
+      <div class="row">
+        <div style="flex:1;min-width:220px">
+          <label>المنصة</label>
+          <select id="platform">
+            <option value="Both">LinkedIn + X</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="X">X</option>
+          </select>
+        </div>
 
-      <div class="btnRow">
-        <button id="runBtn" type="button">توليد المحتوى</button>
-        <button id="copyAllBtn" class="ghost" type="button" disabled>نسخ الكل</button>
+        <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+          <button id="runBtn" type="button">توليد المحتوى</button>
+          <button id="copyAllBtn" class="secondary" type="button" disabled>نسخ الكل</button>
+        </div>
       </div>
 
       <div class="meta">
@@ -65,31 +62,30 @@
       </div>
     </div>
 
-    <div class="grid2">
+    <div class="grid">
+      <!-- X -->
       <div class="card">
-        <div class="sectionTitle">
-          <strong>LinkedIn</strong>
-          <span class="pill" id="liState">—</span>
-        </div>
-        <div id="outLinkedIn" class="output">—</div>
-        <div class="meta">
-          <div class="miniRow">
-            <button id="copyLiBtn" class="ghost" type="button" disabled>نسخ LinkedIn</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="sectionTitle">
-          <strong>X</strong>
-          <span class="counter pill" id="xCount">0 / 280</span>
+        <div class="split-head">
+          <div class="title">X</div>
+          <div class="pill counter" id="xCounter">280 / 0</div>
         </div>
         <div id="outX" class="output">—</div>
         <div class="meta">
-          <div class="miniRow">
-            <button id="copyXBtn" class="ghost" type="button" disabled>نسخ X</button>
-          </div>
-          <span class="pill" id="xHint">—</span>
+          <span class="pill" id="xState">—</span>
+          <button id="copyXBtn" class="secondary" type="button" disabled>نسخ X</button>
+        </div>
+      </div>
+
+      <!-- LinkedIn -->
+      <div class="card">
+        <div class="split-head">
+          <div class="title">LinkedIn</div>
+          <div class="pill" id="liState">—</div>
+        </div>
+        <div id="outLinkedIn" class="output">—</div>
+        <div class="meta">
+          <span class="pill">—</span>
+          <button id="copyLiBtn" class="secondary" type="button" disabled>نسخ LinkedIn</button>
         </div>
       </div>
     </div>
@@ -98,86 +94,97 @@
   </div>
 
 <script>
+  // ===== Elements =====
   const btn = document.getElementById("runBtn");
-  const copyAllBtn = document.getElementById("copyAllBtn");
-  const copyLiBtn = document.getElementById("copyLiBtn");
-  const copyXBtn = document.getElementById("copyXBtn");
-
   const status = document.getElementById("status");
   const debug = document.getElementById("debug");
 
-  const outLinkedIn = document.getElementById("outLinkedIn");
   const outX = document.getElementById("outX");
+  const outLinkedIn = document.getElementById("outLinkedIn");
 
-  const xCount = document.getElementById("xCount");
-  const xHint = document.getElementById("xHint");
+  const xCounter = document.getElementById("xCounter");
+  const xState = document.getElementById("xState");
   const liState = document.getElementById("liState");
 
-  let lastFull = "";
-  let lastLi = "";
-  let lastX = "";
+  const copyAllBtn = document.getElementById("copyAllBtn");
+  const copyXBtn = document.getElementById("copyXBtn");
+  const copyLiBtn = document.getElementById("copyLiBtn");
 
-  btn.addEventListener("click", run);
-  copyAllBtn.addEventListener("click", () => copyText(lastFull));
-  copyLiBtn.addEventListener("click", () => copyText(lastLi));
-  copyXBtn.addEventListener("click", () => copyText(lastX));
+  // ===== State =====
+  let lastFull = "";
+  let lastX = "";
+  let lastLi = "";
+
+  // ===== Helpers =====
+  function normalize(s){
+    return String(s || "")
+      .replace(/\r/g, "")
+      .replace(/\u200f|\u200e/g, "") // RTL/LTR marks
+      .trim();
+  }
 
   function setXCounter(text){
-    const n = (text || "").length;
-    xCount.textContent = `${n} / 280`;
-
-    xCount.classList.remove("ok","warn","bad");
-    xHint.classList.remove("ok","warn","bad");
-
-    if(n === 0){
-      xHint.textContent = "—";
-      return;
-    }
-    if(n <= 240){
-      xCount.classList.add("ok");
-      xHint.classList.add("ok");
-      xHint.textContent = "ممتاز ✅";
-    } else if(n <= 280){
-      xCount.classList.add("warn");
-      xHint.classList.add("warn");
-      xHint.textContent = "قريب من الحد ⚠️";
+    const t = normalize(text);
+    xCounter.textContent = `280 / ${t.length}`;
+    if (t.length > 280) {
+      xState.textContent = `⚠️ تجاوز 280 (الآن ${t.length})`;
+    } else if (t.length === 0) {
+      xState.textContent = "—";
     } else {
-      xCount.classList.add("bad");
-      xHint.classList.add("bad");
-      xHint.textContent = "تجاوز 280 ❌ (سيتم اختصاره من السيرفر إن فعّلت الفلتر)";
+      xState.textContent = `جاهز ✅ (${t.length}/280)`;
     }
   }
 
-  function normalize(s){
-    return String(s || "").replace(/\r/g, "").trim();
+  async function copyToClipboard(text){
+    const t = normalize(text);
+    if(!t) return;
+    try{
+      await navigator.clipboard.writeText(t);
+    }catch(e){
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = t;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
   }
 
+  // ===== Split & Render (FIXED) =====
   function splitOutput(full){
-    // يتوقع: "LinkedIn:" ... "\n\nX:" ...
     const t = normalize(full);
 
-    // حاول نبحث عن X:
-    const xIdx = t.search(/\n?X\s*:\s*\n/i);
-    const liIdx = t.search(/(^|\n)LinkedIn\s*:\s*\n/i);
+    // علامات محتملة لعناوين الأقسام (مرنة)
+    const reLI = /(^|\n)\s*(LinkedIn|لينكد?ن)\s*[:：]?\s*(\n|$)/i;
+    const reX  = /(^|\n)\s*(X|اكس|إكس)\s*[:：]?\s*(\n|$)/i;
 
-    let li = "";
-    let x = "";
+    const mLi = reLI.exec(t);
+    const mX  = reX.exec(t);
 
-    if(liIdx !== -1 && xIdx !== -1 && xIdx > liIdx){
-      li = t.slice(liIdx).replace(/(^|\n)LinkedIn\s*:\s*\n/i, "").slice(0, xIdx - liIdx).trim();
-      x = t.slice(xIdx).replace(/\n?X\s*:\s*\n/i, "").trim();
-      return { li, x };
+    if (!mLi || !mX) {
+      return { okSplit: false, raw: t, li: "", x: "" };
     }
 
-    // إذا المنصة X فقط قد يرجع نص واحد
-    // أو LinkedIn فقط يرجع نص واحد
-    return { li: "", x: "" , raw: t };
+    const liStart = mLi.index + mLi[0].length;
+    const xStart  = mX.index + mX[0].length;
+
+    // تأكد من الترتيب
+    if (xStart > liStart) {
+      const li = t.slice(liStart, mX.index).trim();
+      const x  = t.slice(xStart).trim();
+      return { okSplit: true, li, x, raw: t };
+    } else {
+      const x  = t.slice(xStart, mLi.index).trim();
+      const li = t.slice(liStart).trim();
+      return { okSplit: true, li, x, raw: t };
+    }
   }
 
   function render(platform, fullText){
     lastFull = normalize(fullText);
 
-    // افتراضي
+    // reset
     outLinkedIn.innerText = "—";
     outX.innerText = "—";
     liState.textContent = "—";
@@ -186,19 +193,28 @@
     lastLi = "";
     lastX = "";
 
-    const { li, x, raw } = splitOutput(lastFull);
+    const parts = splitOutput(lastFull);
 
     if(platform === "Both"){
-      lastLi = li || "";
-      lastX = x || "";
-      outLinkedIn.innerText = lastLi || "—";
-      outX.innerText = lastX || "—";
-      liState.textContent = lastLi ? "جاهز ✅" : "غير موجود";
-      setXCounter(lastX || "");
+      if(parts.okSplit){
+        lastLi = parts.li || "";
+        lastX  = parts.x || "";
+        outLinkedIn.innerText = lastLi || "—";
+        outX.innerText = lastX || "—";
+        liState.textContent = lastLi ? "جاهز ✅" : "غير موجود";
+        setXCounter(lastX || "");
+      } else {
+        // ✅ Fallback: لا نخلي الناتج يختفي
+        lastLi = parts.raw || lastFull;
+        outLinkedIn.innerText = lastLi || "—";
+        outX.innerText = "—";
+        liState.textContent = "تم عرض النص كاملًا (تعذر التقسيم) ⚠️";
+        setXCounter("");
+      }
     }
 
     if(platform === "LinkedIn"){
-      lastLi = raw || lastFull;
+      lastLi = parts.raw || lastFull;
       outLinkedIn.innerText = lastLi || "—";
       outX.innerText = "—";
       liState.textContent = lastLi ? "جاهز ✅" : "—";
@@ -206,7 +222,7 @@
     }
 
     if(platform === "X"){
-      lastX = raw || lastFull;
+      lastX = parts.raw || lastFull;
       outX.innerText = lastX || "—";
       outLinkedIn.innerText = "—";
       liState.textContent = "—";
@@ -217,25 +233,23 @@
     copyAllBtn.disabled = !lastFull;
     copyLiBtn.disabled = !lastLi;
     copyXBtn.disabled = !lastX;
+
+    // Debug: طول المخرجات
+    debug.textContent = `len ${lastFull.length}`;
   }
 
-  async function copyText(text){
-    const t = normalize(text);
-    if(!t) return;
-    try{
-      await navigator.clipboard.writeText(t);
-      debug.textContent = "تم النسخ ✅";
-    }catch(e){
-      // fallback
-      const ta = document.createElement("textarea");
-      ta.value = t;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      debug.textContent = "تم النسخ ✅";
-    }
-  }
+  // ===== Actions =====
+  btn.addEventListener("click", run);
+
+  copyAllBtn.addEventListener("click", async () => {
+    await copyToClipboard(lastFull);
+  });
+  copyXBtn.addEventListener("click", async () => {
+    await copyToClipboard(lastX);
+  });
+  copyLiBtn.addEventListener("click", async () => {
+    await copyToClipboard(lastLi);
+  });
 
   async function run(){
     const text = document.getElementById("text").value.trim();
@@ -246,11 +260,15 @@
     btn.disabled = true;
     status.textContent = "الحالة: جاري الإرسال...";
     debug.textContent = "—";
+
     outLinkedIn.innerText = "⏳ جاري التوليد...";
     outX.innerText = "⏳ جاري التوليد...";
     liState.textContent = "—";
     setXCounter("");
 
+    lastFull = "";
+    lastX = "";
+    lastLi = "";
     copyAllBtn.disabled = true;
     copyLiBtn.disabled = true;
     copyXBtn.disabled = true;
@@ -271,9 +289,9 @@
       render(platform, data.output || "");
     }catch(e){
       status.textContent = "الحالة: فشل ❌";
-      debug.textContent = "راجع /health و Logs";
+      debug.textContent = "تحقق من /health و Logs";
       outLinkedIn.innerText = "❌ خطأ: " + (e.message || e);
-      outX.innerText = "❌ خطأ: " + (e.message || e);
+      outX.innerText = "—";
       liState.textContent = "—";
       setXCounter("");
     }finally{
