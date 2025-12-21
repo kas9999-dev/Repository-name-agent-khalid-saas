@@ -8,109 +8,34 @@
   <link rel="stylesheet" href="./styles.css" />
 
   <style>
-    body {
-      background: #0b0f19;
-      color: #e5e7eb;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-    }
-
-    .wrap {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 0 16px;
-    }
-
-    .card {
-      background: rgba(255,255,255,.04);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(255,255,255,.08);
-    }
-
-    h1 {
-      font-size: 26px;
-      margin-bottom: 4px;
-    }
-
-    .muted {
-      opacity: .6;
-      font-size: 14px;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 120px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 12px;
-      padding: 14px;
-      color: #fff;
-      resize: vertical;
-    }
-
-    select, button {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      color: #fff;
-      padding: 12px 14px;
-      border-radius: 12px;
-    }
-
-    button.primary {
-      background: #2563eb;
-      border: none;
-      cursor: pointer;
-    }
-
-    button.secondary {
-      background: rgba(255,255,255,.08);
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .output {
-      white-space: pre-wrap;
-      line-height: 1.8;
-      font-size: 15px;
-    }
-
-    .tag {
-      float: left;
-      opacity: .6;
-      font-size: 13px;
-    }
-
-    .status {
-      color: #22c55e;
-      font-size: 14px;
-      margin-top: 10px;
-    }
+    body{background:#0b0f19;color:#e5e7eb;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:rgba(255,255,255,.04);border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid rgba(255,255,255,.08)}
+    h1{font-size:26px;margin-bottom:4px}
+    .muted{opacity:.6;font-size:14px}
+    textarea{width:100%;min-height:120px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;color:#fff;resize:vertical}
+    select,button{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 14px;border-radius:12px}
+    button.primary{background:#2563eb;border:none;cursor:pointer}
+    button.secondary{background:rgba(255,255,255,.08);cursor:pointer}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+    .output{white-space:pre-wrap;line-height:1.8;font-size:15px}
+    .tag{float:left;opacity:.6;font-size:13px}
+    .status{font-size:14px;margin-top:10px}
+    .ok{color:#22c55e}
+    .bad{color:#ef4444}
+    .warn{color:#f59e0b}
   </style>
 </head>
 
 <body>
-
 <div class="wrap">
 
-  <!-- HEADER -->
   <div class="card">
     <h1>Nashr</h1>
     <div class="muted">Demo Version • 2025</div>
   </div>
 
-  <!-- INPUT -->
   <div class="card">
     <h3>الفكرة / الموضوع</h3>
     <textarea id="topic" placeholder="اكتب الفكرة هنا..."></textarea>
@@ -122,15 +47,15 @@
       </select>
 
       <select id="audience">
-        <option>رواد الأعمال</option>
-        <option>مستثمرون</option>
-        <option>صناع محتوى</option>
+        <option value="رواد الأعمال">رواد الأعمال</option>
+        <option value="مستثمرون">مستثمرون</option>
+        <option value="صناع محتوى">صناع محتوى</option>
       </select>
 
       <select id="tone">
-        <option>احترافية</option>
-        <option>ملهمة</option>
-        <option>تحليلية</option>
+        <option value="احترافية">احترافية</option>
+        <option value="ملهمة">ملهمة</option>
+        <option value="تحليلية">تحليلية</option>
       </select>
 
       <select id="platform">
@@ -148,21 +73,18 @@
     <div id="status" class="status"></div>
   </div>
 
-  <!-- X OUTPUT -->
   <div class="card">
     <span class="tag">X</span>
     <div id="xOut" class="output"></div>
   </div>
 
-  <!-- LINKEDIN OUTPUT -->
   <div class="card">
     <span class="tag">LinkedIn</span>
     <div id="linkedinOut" class="output"></div>
   </div>
 
-  <!-- EXTRA -->
   <div class="card">
-    <span class="tag">سلسلة / ترند</span>
+    <span class="tag">سلسلة / ترند / Debug</span>
     <div id="extraOut" class="output"></div>
   </div>
 
@@ -176,8 +98,26 @@
   const linkedinOut = document.getElementById("linkedinOut");
   const extraOut = document.getElementById("extraOut");
 
+  function pick(obj, paths) {
+    for (const p of paths) {
+      try {
+        const val = p.split('.').reduce((a, k) => (a && a[k] !== undefined ? a[k] : undefined), obj);
+        if (typeof val === "string" && val.trim()) return val;
+      } catch {}
+    }
+    return "";
+  }
+
   btn.onclick = async () => {
+    const topic = document.getElementById("topic").value.trim();
+    if (!topic) {
+      status.className = "status warn";
+      status.textContent = "⚠️ اكتب الفكرة أولاً";
+      return;
+    }
+
     btn.disabled = true;
+    status.className = "status";
     status.textContent = "⏳ يتم التوليد...";
 
     xOut.textContent = "";
@@ -185,49 +125,80 @@
     extraOut.textContent = "";
 
     try {
+      const payload = {
+        topic,
+        idea: topic,
+        prompt: topic,
+        language: document.getElementById("lang").value,
+        lang: document.getElementById("lang").value,
+        audience: document.getElementById("audience").value,
+        tone: document.getElementById("tone").value,
+        platform: document.getElementById("platform").value
+      };
+
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: document.getElementById("topic").value,
-          language: document.getElementById("lang").value,
-          audience: document.getElementById("audience").value,
-          tone: document.getElementById("tone").value,
-          platform: document.getElementById("platform").value
-        })
+        body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      let dataText = await res.text();
+      let data = {};
+      try { data = JSON.parse(dataText); } catch { data = { raw: dataText }; }
 
-      xOut.textContent = data.x || "";
-      linkedinOut.textContent = data.linkedin || "";
-      extraOut.textContent = data.extra || "";
+      // حاول نطلع المخرجات من أكثر من مكان محتمل
+      const xText = pick(data, [
+        "x","X","tweet","tweetText","xOut",
+        "result.x","result.X","result.tweet",
+        "data.x","data.X","data.tweet",
+        "outputs.x","outputs.X","outputs.tweet",
+        "content.x","content.X","content.tweet"
+      ]);
 
-      status.textContent = "✅ Done (HTTP 200)";
+      const liText = pick(data, [
+        "linkedin","LinkedIn","li","linkedinText","linkedinOut",
+        "result.linkedin","result.LinkedIn","result.li",
+        "data.linkedin","data.LinkedIn","data.li",
+        "outputs.linkedin","outputs.LinkedIn","outputs.li",
+        "content.linkedin","content.LinkedIn","content.li"
+      ]);
+
+      const extraText = pick(data, [
+        "extra","series","trend","debug",
+        "result.extra","result.series","result.trend",
+        "data.extra","data.series","data.trend",
+        "outputs.extra","outputs.series","outputs.trend",
+        "content.extra","content.series","content.trend"
+      ]);
+
+      xOut.textContent = xText || "";
+      linkedinOut.textContent = liText || "";
+      extraOut.textContent = extraText || "";
+
+      // إذا ما طلع شيء، اعرض JSON كامل للتشخيص فوراً
+      const nothing = !(xText || liText || extraText);
+      if (nothing) {
+        extraOut.textContent = "DEBUG RESPONSE:\n" + JSON.stringify(data, null, 2);
+        status.className = "status warn";
+        status.textContent = `⚠️ وصل رد من السيرفر لكن بدون مفاتيح متوقعة (HTTP ${res.status})`;
+      } else {
+        status.className = "status ok";
+        status.textContent = `✅ Done (HTTP ${res.status})`;
+      }
+
     } catch (e) {
-      status.textContent = "❌ حدث خطأ";
+      status.className = "status bad";
+      status.textContent = "❌ حدث خطأ أثناء التوليد";
+      extraOut.textContent = String(e);
       console.error(e);
     }
 
     btn.disabled = false;
   };
 
-  // ✅ COPY ALL — WORKING 100%
+  // ✅ COPY ALL
   document.getElementById("copyAll").addEventListener("click", async () => {
-    const fullText = `
-X:
-${xOut.innerText}
-
---------------------
-
-LinkedIn:
-${linkedinOut.innerText}
-
---------------------
-
-Extra:
-${extraOut.innerText}
-`;
+    const fullText = `X:\n${xOut.innerText}\n\n--------------------\n\nLinkedIn:\n${linkedinOut.innerText}\n\n--------------------\n\nExtra/Debug:\n${extraOut.innerText}\n`;
 
     if (!fullText.trim()) {
       alert("لا يوجد محتوى للنسخ");
@@ -245,6 +216,5 @@ ${extraOut.innerText}
     }
   });
 </script>
-
 </body>
 </html>
