@@ -1,4 +1,3 @@
-<!-- frontend/app.html -->
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
@@ -6,419 +5,425 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nashr — App</title>
   <link rel="stylesheet" href="./styles.css" />
+
   <style>
-    /* fallback minimal styling if styles.css is missing bits */
+    /* Minimal defensive styles (in case styles.css misses bits) */
     :root{
-      --bg:#070b14; --panel:rgba(255,255,255,.06); --panel2:rgba(255,255,255,.04);
-      --line:rgba(255,255,255,.08); --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.65);
-      --ok:#46d27b; --bad:#ff4d4d; --warn:#ffcc66;
+      --bg:#070b14;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.04);
+      --line:rgba(255,255,255,.08);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.65);
+      --good:#46d27b;
+      --bad:#ff4d4d;
+      --warn:#ffcc66;
+      --btn:#2f63ff;
+      --btn2:rgba(47,99,255,.18);
     }
-    html,body{height:100%; overflow-y:auto}
-    body{margin:0; background:var(--bg); color:var(--text); font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    .wrap{max-width:1100px; margin:28px auto; padding:0 14px}
-    .card{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 18px 55px rgba(0,0,0,.35)}
-    .header{display:flex; align-items:flex-end; justify-content:space-between; gap:12px}
-    .title{font-size:34px; font-weight:800; letter-spacing:.2px}
+    html,body{height:100%; overflow-y:auto;}
+    body{margin:0; background:var(--bg); color:var(--text); font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+    a{color:inherit}
+    .wrap{max-width:1100px; margin:28px auto; padding:0 14px;}
+    .header{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:16px;}
+    .brand{font-size:34px; font-weight:800; letter-spacing:.2px;}
     .sub{color:var(--muted); font-size:13px}
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    .field{flex:1 1 220px}
-    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
-    select, textarea, input{
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035)); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 12px 40px rgba(0,0,0,.35);}
+    .topbar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+    .pill{border:1px solid var(--line); background:var(--panel2); padding:8px 10px; border-radius:12px; font-size:13px; color:var(--muted);}
+    .grid{display:grid; grid-template-columns:1fr; gap:14px;}
+    .row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+    .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+    @media (max-width:900px){
+      .row{grid-template-columns:1fr 1fr;}
+      .row2{grid-template-columns:1fr;}
+    }
+    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px 0;}
+    textarea{width:100%; min-height:120px; resize:vertical; background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:12px; color:var(--text); outline:none}
+    select, input{
       width:100%;
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      outline:none;
-    }
-    textarea{min-height:120px; resize:vertical}
-    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-    button{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.08);
-      color:var(--text);
-      padding:10px 14px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:650;
-    }
-    button.primary{background:#2f6feb; border-color:#2f6feb}
-    button:disabled{opacity:.55; cursor:not-allowed}
-    .status{display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-top:8px; color:var(--muted); font-size:13px}
-    .dot{width:9px; height:9px; border-radius:999px; background:var(--muted)}
-    .dot.ok{background:var(--ok)}
-    .dot.bad{background:var(--bad)}
-    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
-    @media (max-width:900px){ .grid2{grid-template-columns:1fr} }
-    .outCard{background:var(--panel2); border:1px solid var(--line); border-radius:18px; padding:12px}
-    .outHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
-    .outTitle{font-weight:800}
-    .count{color:var(--muted); font-size:12px}
-    pre{
-      margin:0; white-space:pre-wrap; word-break:break-word;
-      background:rgba(0,0,0,.20);
+      background:var(--panel2);
       border:1px solid var(--line);
       border-radius:14px;
-      padding:12px;
-      min-height:90px;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      font-size:13px;
-      line-height:1.55;
+      padding:10px 12px;
+      color:var(--text);
+      outline:none;
     }
-    .footer{margin-top:14px; text-align:center; color:var(--muted); font-size:12px}
+    .actions{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:10px;}
+    .btn{
+      appearance:none; border:0;
+      background:var(--btn);
+      color:white;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:700;
+      cursor:pointer;
+      min-width:180px;
+    }
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+    .btn2{
+      appearance:none; border:1px solid var(--line);
+      background:var(--panel2);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      min-width:160px;
+    }
+    .status{font-size:13px; color:var(--muted); display:flex; align-items:center; gap:8px;}
+    .dot{width:8px; height:8px; border-radius:999px; background:var(--muted); display:inline-block}
+    .dot.good{background:var(--good)}
+    .dot.bad{background:var(--bad)}
+    .dot.warn{background:var(--warn)}
+    .outGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;}
+    @media (max-width:900px){ .outGrid{grid-template-columns:1fr;} }
+    .outCard{background:var(--panel2); border:1px solid var(--line); border-radius:18px; padding:12px;}
+    .outHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
+    .outTitle{font-weight:800; letter-spacing:.2px;}
+    .chip{font-size:12px; color:var(--muted)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .outText{
+      white-space:pre-wrap;
+      line-height:1.75;
+      font-size:15px;
+      background:transparent;
+      border:0;
+      padding:0;
+      margin:0;
+      color:var(--text);
+    }
+    .footer{margin:18px 0 8px; text-align:center; color:var(--muted); font-size:12px;}
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="card">
-      <div class="header">
-        <div>
-          <div class="title">Nashr</div>
-          <div class="sub">Demo Version • 2025</div>
-        </div>
-        <div class="row" style="justify-content:flex-end; margin:0">
-          <button id="healthBtn" title="health">health</button>
-          <button id="apiBtn" title="API endpoint">API: /api/run</button>
-        </div>
+    <div class="header">
+      <div>
+        <div class="brand">Nashr</div>
+        <div class="sub">Demo Version · 2025</div>
       </div>
-
-      <div class="row" style="margin-top:14px">
-        <div class="field" style="flex:1 1 100%">
-          <label>الفكرة / الموضوع</label>
-          <textarea id="topic" placeholder="اكتب الفكرة هنا..."></textarea>
-          <div class="sub" style="margin-top:6px">النتيجة قابلة للتعديل قبل النشر</div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field">
-          <label>المنصة</label>
-          <select id="platform">
-            <option>LinkedIn + X</option>
-            <option>LinkedIn فقط</option>
-            <option>X فقط</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>النبرة</label>
-          <select id="tone">
-            <option>احترافية</option>
-            <option>ودية</option>
-            <option>جريئة</option>
-            <option>مقنعة</option>
-            <option>مختصرة</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>الجمهور</label>
-          <select id="audience">
-            <option>رواد الأعمال</option>
-            <option>مشاهير وصناع محتوى</option>
-            <option>مستثمرون</option>
-            <option>قيادات تنفيذية</option>
-            <option>عملاء محتملون</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>اللغة</label>
-          <select id="language">
-            <option value="ar">العربية</option>
-            <option value="en">English</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="genBtn">توليد المحتوى</button>
-        <button id="copyAllBtn">نسخ الكل</button>
-      </div>
-
-      <div class="status">
-        <span id="statusDot" class="dot"></span>
-        <span id="statusText">Ready</span>
+      <div class="topbar">
+        <div class="pill mono" id="apiPill">API: /api/run</div>
+        <div class="pill mono" id="healthPill">health</div>
       </div>
     </div>
 
-    <div class="grid2">
-      <div class="outCard">
-        <div class="outHead">
-          <div class="outTitle">X</div>
-          <div style="display:flex; gap:8px; align-items:center">
-            <div class="count"><span id="xCount">0</span>/280</div>
-            <button id="copyXBtn">نسخ</button>
+    <div class="panel">
+      <div class="grid">
+        <div>
+          <label for="topic">الفكرة / الموضوع</label>
+          <textarea id="topic" placeholder="اكتب الفكرة هنا..."></textarea>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="platform">المنصة</label>
+            <select id="platform">
+              <option>LinkedIn + X</option>
+              <option>LinkedIn فقط</option>
+              <option>X فقط</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="tone">النبرة</label>
+            <select id="tone">
+              <option>احترافية</option>
+              <option>ودية</option>
+              <option>حادة</option>
+              <option>مختصرة</option>
+              <option>قصصية</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="audience">الجمهور</label>
+            <select id="audience">
+              <option>رواد الأعمال</option>
+              <option>مستثمرون</option>
+              <option>مدراء تنفيذيون</option>
+              <option>خبراء / متخصصون</option>
+              <option>طلاب</option>
+              <option>جمهور عام</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="language">اللغة</label>
+            <select id="language">
+              <option value="ar">العربية</option>
+              <option value="en">English</option>
+            </select>
           </div>
         </div>
-        <pre id="xOut"></pre>
-      </div>
 
-      <div class="outCard">
-        <div class="outHead">
-          <div class="outTitle">LinkedIn</div>
-          <button id="copyLiBtn">نسخ</button>
+        <div class="actions">
+          <button class="btn" id="btnGenerate">توليد المحتوى</button>
+          <button class="btn2" id="btnCopyAll" title="ينسخ LinkedIn + X معًا">نسخ الكل</button>
+
+          <div class="status" id="status">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">جاهز</span>
+          </div>
         </div>
-        <pre id="liOut"></pre>
+      </div>
+
+      <div class="outGrid">
+        <div class="outCard">
+          <div class="outHead">
+            <div>
+              <div class="outTitle">LinkedIn</div>
+              <div class="chip" id="liMeta">—</div>
+            </div>
+            <button class="btn2" id="btnCopyLinkedIn">نسخ</button>
+          </div>
+          <pre class="outText" id="linkedinOut"></pre>
+        </div>
+
+        <div class="outCard">
+          <div class="outHead">
+            <div>
+              <div class="outTitle">X</div>
+              <div class="chip"><span id="xCount">0</span>/280</div>
+            </div>
+            <button class="btn2" id="btnCopyX">نسخ</button>
+          </div>
+          <pre class="outText" id="xOut"></pre>
+        </div>
       </div>
     </div>
 
-    <div class="outCard" style="margin-top:12px">
-      <div class="outHead">
-        <div class="outTitle">سلسلة / ردود / ترند (Debug)</div>
-        <button id="copyExtraBtn">نسخ</button>
-      </div>
-      <pre id="extraOut"></pre>
-    </div>
-
-    <div class="footer">Nashr © 2025 • Demo Version</div>
+    <div class="footer">Nashr © 2025 · Demo</div>
   </div>
 
-<script type="module">
-  const $ = (id) => document.getElementById(id);
+  <script type="module">
+    const topic = document.getElementById("topic");
+    const platform = document.getElementById("platform");
+    const tone = document.getElementById("tone");
+    const audience = document.getElementById("audience");
+    const language = document.getElementById("language");
 
-  const topic = $("topic");
-  const platform = $("platform");
-  const tone = $("tone");
-  const audience = $("audience");
-  const language = $("language");
+    const btnGenerate = document.getElementById("btnGenerate");
+    const btnCopyAll = document.getElementById("btnCopyAll");
+    const btnCopyLinkedIn = document.getElementById("btnCopyLinkedIn");
+    const btnCopyX = document.getElementById("btnCopyX");
 
-  const genBtn = $("genBtn");
-  const copyAllBtn = $("copyAllBtn");
-  const copyXBtn = $("copyXBtn");
-  const copyLiBtn = $("copyLiBtn");
-  const copyExtraBtn = $("copyExtraBtn");
+    const linkedinOut = document.getElementById("linkedinOut");
+    const xOut = document.getElementById("xOut");
+    const xCount = document.getElementById("xCount");
+    const liMeta = document.getElementById("liMeta");
 
-  const xOut = $("xOut");
-  const liOut = $("liOut");
-  const extraOut = $("extraOut");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
 
-  const xCount = $("xCount");
-  const statusDot = $("statusDot");
-  const statusText = $("statusText");
+    const apiPill = document.getElementById("apiPill");
+    const healthPill = document.getElementById("healthPill");
 
-  const healthBtn = $("healthBtn");
-  const apiBtn = $("apiBtn");
+    function setStatus(type, text){
+      statusText.textContent = text;
+      statusDot.classList.remove("good","bad","warn");
+      if(type === "good") statusDot.classList.add("good");
+      else if(type === "bad") statusDot.classList.add("bad");
+      else if(type === "warn") statusDot.classList.add("warn");
+    }
 
-  function setStatus(kind, text){
-    statusText.textContent = text;
-    statusDot.className = "dot " + (kind || "");
-  }
+    function updateXCounter(){
+      const s = (xOut.textContent || "");
+      xCount.textContent = String(s.length);
+    }
 
-  function clampX(s){
-    if(!s) return "";
-    s = String(s).trim();
-    if(s.length <= 280) return s;
-    return s.slice(0,277).trimEnd() + "...";
-  }
+    // Robust clipboard copy with fallback
+    async function copyTextSmart(text){
+      const t = (text ?? "").toString();
+      if(!t.trim()) throw new Error("لا يوجد نص للنسخ");
 
-  function updateXCounter(){
-    const n = (xOut.textContent || "").length;
-    xCount.textContent = String(n);
-  }
+      // Try modern clipboard (needs https or localhost)
+      try{
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(t);
+          return true;
+        }
+      }catch(e){
+        // fall through to fallback
+      }
 
-  function safeStr(v){
-    if (v === null || v === undefined) return "";
-    if (typeof v === "string") return v;
-    try { return JSON.stringify(v, null, 2); } catch { return String(v); }
-  }
-
-  // ✅ THIS is the important part: parse ANY likely response shape
-  function parseApiResponse(json){
-    // expected: { ok:true, output:{ linkedin, x, language, series, trend, replies ... } }
-    const out = json?.output ?? json?.data?.output ?? json?.result?.output ?? json?.data ?? json?.result ?? json;
-
-    const linkedin =
-      out?.linkedin ?? out?.linkedIn ?? out?.li ?? json?.linkedin ?? json?.linkedIn ?? "";
-
-    const x =
-      out?.x ?? out?.twitter ?? out?.tweet ?? json?.x ?? json?.twitter ?? "";
-
-    const series =
-      out?.series ?? out?.thread ?? out?.threads ?? "";
-
-    const replies =
-      out?.replies ?? out?.reply ?? "";
-
-    const trend =
-      out?.trend ?? out?.trends ?? "";
-
-    const debug = {
-      ok: json?.ok,
-      keys: Object.keys(json || {}),
-      outputKeys: Object.keys(out || {}),
-      raw: json
-    };
-
-    return {
-      linkedin: safeStr(linkedin).trim(),
-      x: safeStr(x).trim(),
-      series: safeStr(series).trim(),
-      replies: safeStr(replies).trim(),
-      trend: safeStr(trend).trim(),
-      debug: safeStr(debug)
-    };
-  }
-
-  async function copyToClipboard(text){
-    const t = (text || "").trim();
-    if (!t) return false;
-    try{
-      await navigator.clipboard.writeText(t);
-      return true;
-    }catch(e){
-      // fallback
+      // Fallback: hidden textarea + execCommand
       const ta = document.createElement("textarea");
       ta.value = t;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      ta.style.left = "-1000px";
+      ta.style.opacity = "0";
       document.body.appendChild(ta);
+      ta.focus();
       ta.select();
-      document.execCommand("copy");
+      let ok = false;
+      try{
+        ok = document.execCommand("copy");
+      }catch(e){
+        ok = false;
+      }
       document.body.removeChild(ta);
+
+      if(!ok) throw new Error("تعذر النسخ (Clipboard blocked)");
       return true;
     }
-  }
 
-  function renderOutputs({x, linkedin, series, replies, trend, debug}){
-    // Always show something to detect parsing problems
-    xOut.textContent = x || "";
-    liOut.textContent = linkedin || "";
-
-    const blocks = [];
-    if (series) blocks.push("=== Series ===\n" + series);
-    if (replies) blocks.push("=== Replies ===\n" + replies);
-    if (trend) blocks.push("=== Trend ===\n" + trend);
-
-    // Always include debug so we can see the real response when empty
-    blocks.push("=== Debug ===\n" + debug);
-
-    extraOut.textContent = blocks.join("\n\n---\n\n");
-    updateXCounter();
-  }
-
-  function mapPlatformForApi(uiValue){
-    // Your backend expects: "LinkedIn + X" OR contains "linkedin" and "x"
-    if (uiValue.includes("LinkedIn + X")) return "LinkedIn + X";
-    if (uiValue.includes("LinkedIn")) return "LinkedIn";
-    return "X";
-  }
-
-  genBtn.addEventListener("click", async () => {
-    const text = (topic.value || "").trim();
-    if(!text){
-      setStatus("bad", "اكتب الفكرة أولاً");
-      return;
+    function normalizePlatform(p){
+      const v = (p || "").toLowerCase();
+      if(v.includes("linkedin") && v.includes("x")) return "LinkedIn + X";
+      if(v.includes("linkedin")) return "LinkedIn";
+      if(v.includes("x")) return "X";
+      return "LinkedIn + X";
     }
 
-    setStatus("", "Running…");
-    genBtn.disabled = true;
+    async function checkHealth(){
+      try{
+        const r = await fetch("/health");
+        if(!r.ok) throw new Error("health not ok");
+        healthPill.textContent = "health ✓";
+      }catch(e){
+        healthPill.textContent = "health ✕";
+      }
+    }
+    checkHealth();
 
-    // clear previous outputs
-    xOut.textContent = "";
-    liOut.textContent = "";
-    extraOut.textContent = "";
-    updateXCounter();
+    function safeStr(v){ return (v == null) ? "" : String(v); }
 
-    try{
+    // Parse backend response safely
+    function parseApiResponse(data){
+      // expected: { ok:true, output: { linkedin, x, language } }
+      const ok = !!data?.ok;
+      const out = data?.output || {};
+      const linkedin = safeStr(out.linkedin);
+      const x = safeStr(out.x);
+      const lang = safeStr(out.language || "");
+
+      return { ok, linkedin, x, lang, raw:data };
+    }
+
+    function applyLanguageUI(lang){
+      // Only change direction; keep UI Arabic (as you want)
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = (lang === "en") ? "en" : "ar";
+    }
+
+    async function generate(){
+      const text = (topic.value || "").trim();
+      if(!text){
+        setStatus("warn","اكتب موضوعًا أولًا");
+        topic.focus();
+        return;
+      }
+
+      setStatus("warn","جاري التوليد...");
+      btnGenerate.disabled = true;
+
+      // clear outputs while generating
+      linkedinOut.textContent = "";
+      xOut.textContent = "";
+      liMeta.textContent = "—";
+      updateXCounter();
+
       const payload = {
         text,
-        platform: mapPlatformForApi(platform.value),
+        platform: normalizePlatform(platform.value),
         tone: tone.value,
         audience: audience.value,
         language: language.value
       };
 
-      const r = await fetch("/api/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      try{
+        const res = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
 
-      const status = r.status;
-      let json = null;
+        const json = await res.json().catch(() => ({}));
+
+        if(!res.ok || !json?.ok){
+          const msg = json?.error || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
+
+        const parsed = parseApiResponse(json);
+
+        applyLanguageUI(parsed.lang);
+
+        // Fill outputs
+        linkedinOut.textContent = parsed.linkedin || "";
+        xOut.textContent = parsed.x || "";
+        liMeta.textContent = parsed.lang ? `language: ${parsed.lang}` : "—";
+        updateXCounter();
+
+        const hasAny = (parsed.linkedin.trim() || parsed.x.trim());
+        if(!hasAny){
+          setStatus("warn","تمت الاستجابة لكن بدون نص — راجع OPENAI_KEY أو السجلات");
+        }else{
+          setStatus("good","Done (HTTP 200)");
+        }
+
+      }catch(err){
+        setStatus("bad", err?.message || "فشل التوليد");
+      }finally{
+        btnGenerate.disabled = false;
+      }
+    }
+
+    btnGenerate.addEventListener("click", generate);
+
+    btnCopyLinkedIn.addEventListener("click", async () => {
+      try{
+        await copyTextSmart(linkedinOut.textContent);
+        setStatus("good","Copied LinkedIn ✓");
+      }catch(e){
+        setStatus("bad", e.message || "فشل النسخ");
+      }
+    });
+
+    btnCopyX.addEventListener("click", async () => {
+      try{
+        await copyTextSmart(xOut.textContent);
+        setStatus("good","Copied X ✓");
+      }catch(e){
+        setStatus("bad", e.message || "فشل النسخ");
+      }
+    });
+
+    btnCopyAll.addEventListener("click", async () => {
+      const li = (linkedinOut.textContent || "").trim();
+      const x = (xOut.textContent || "").trim();
+
+      const blocks = [];
+      if(li) blocks.push(`LinkedIn:\n${li}`);
+      if(x) blocks.push(`\n\nX:\n${x}`);
 
       try{
-        json = await r.json();
+        await copyTextSmart(blocks.join(""));
+        setStatus("good","Copied All ✓");
       }catch(e){
-        const txt = await r.text();
-        renderOutputs({ x:"", linkedin:"", series:"", replies:"", trend:"", debug: txt || "Non-JSON response" });
-        setStatus("bad", `Bad response (HTTP ${status})`);
-        return;
+        setStatus("bad", e.message || "فشل النسخ");
       }
+    });
 
-      const parsed = parseApiResponse(json);
+    // Update X counter if something changes (extra safety)
+    const mo = new MutationObserver(updateXCounter);
+    mo.observe(xOut, { childList:true, subtree:true, characterData:true });
 
-      // If OpenAI returned empty, show a clear marker
-      if (!parsed.x && !parsed.linkedin){
-        parsed.debug = parsed.debug + "\n\nNOTE: output fields empty. Check backend logs / OPENAI_API_KEY.";
-        // also show raw json at least
+    // Little UX: Ctrl/Cmd+Enter to generate
+    topic.addEventListener("keydown", (e) => {
+      if((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+        e.preventDefault();
+        generate();
       }
+    });
 
-      // Ensure X is <= 280 just in case
-      parsed.x = clampX(parsed.x);
-
-      renderOutputs(parsed);
-
-      if (r.ok && (parsed.x || parsed.linkedin)){
-        setStatus("ok", `Done (HTTP ${status}) ✅`);
-      }else if (r.ok){
-        setStatus("warn", `Done (HTTP ${status}) لكن بدون محتوى ⚠️`);
-      }else{
-        setStatus("bad", `Error (HTTP ${status}) ❌`);
-      }
-
-    }catch(err){
-      renderOutputs({ x:"", linkedin:"", series:"", replies:"", trend:"", debug: (err?.message || String(err)) });
-      setStatus("bad", "Request failed ❌");
-    }finally{
-      genBtn.disabled = false;
-    }
-  });
-
-  copyXBtn.addEventListener("click", async () => {
-    const ok = await copyToClipboard(xOut.textContent);
-    setStatus(ok ? "ok" : "warn", ok ? "Copied X ✅" : "Nothing to copy");
-  });
-
-  copyLiBtn.addEventListener("click", async () => {
-    const ok = await copyToClipboard(liOut.textContent);
-    setStatus(ok ? "ok" : "warn", ok ? "Copied LinkedIn ✅" : "Nothing to copy");
-  });
-
-  copyExtraBtn.addEventListener("click", async () => {
-    const ok = await copyToClipboard(extraOut.textContent);
-    setStatus(ok ? "ok" : "warn", ok ? "Copied Debug ✅" : "Nothing to copy");
-  });
-
-  copyAllBtn.addEventListener("click", async () => {
-    const blocks = [];
-    if (xOut.textContent.trim()) blocks.push("X:\n" + xOut.textContent.trim());
-    if (liOut.textContent.trim()) blocks.push("LinkedIn:\n" + liOut.textContent.trim());
-    if (extraOut.textContent.trim()) blocks.push("Extra/Debug:\n" + extraOut.textContent.trim());
-    const ok = await copyToClipboard(blocks.join("\n\n---\n\n"));
-    setStatus(ok ? "ok" : "warn", ok ? "Copied All ✅" : "Nothing to copy");
-  });
-
-  healthBtn.addEventListener("click", async () => {
-    try{
-      const r = await fetch("/health");
-      const t = await r.text();
-      extraOut.textContent = "=== /health ===\n" + t;
-      setStatus(r.ok ? "ok" : "warn", r.ok ? "Health OK ✅" : "Health not OK ⚠️");
-    }catch(e){
-      extraOut.textContent = "Health error: " + (e?.message || String(e));
-      setStatus("bad", "Health failed ❌");
-    }
-  });
-
-  apiBtn.addEventListener("click", () => {
-    extraOut.textContent = "POST /api/run\nPayload: { text, platform, tone, audience, language }";
-    setStatus("", "API: /api/run");
-  });
-
-  // initialize
-  setStatus("", "Ready");
-  updateXCounter();
-</script>
+    // Show API pill
+    apiPill.textContent = "API: /api/run";
+  </script>
 </body>
 </html>
