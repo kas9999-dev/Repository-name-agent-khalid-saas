@@ -1,220 +1,424 @@
+<!-- frontend/app.html -->
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nashr — App</title>
-
   <link rel="stylesheet" href="./styles.css" />
-
   <style>
-    body{background:#0b0f19;color:#e5e7eb;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto}
-    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
-    .card{background:rgba(255,255,255,.04);border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid rgba(255,255,255,.08)}
-    h1{font-size:26px;margin-bottom:4px}
-    .muted{opacity:.6;font-size:14px}
-    textarea{width:100%;min-height:120px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;color:#fff;resize:vertical}
-    select,button{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 14px;border-radius:12px}
-    button.primary{background:#2563eb;border:none;cursor:pointer}
-    button.secondary{background:rgba(255,255,255,.08);cursor:pointer}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
-    .output{white-space:pre-wrap;line-height:1.8;font-size:15px}
-    .tag{float:left;opacity:.6;font-size:13px}
-    .status{font-size:14px;margin-top:10px}
-    .ok{color:#22c55e}
-    .bad{color:#ef4444}
-    .warn{color:#f59e0b}
+    /* fallback minimal styling if styles.css is missing bits */
+    :root{
+      --bg:#070b14; --panel:rgba(255,255,255,.06); --panel2:rgba(255,255,255,.04);
+      --line:rgba(255,255,255,.08); --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.65);
+      --ok:#46d27b; --bad:#ff4d4d; --warn:#ffcc66;
+    }
+    html,body{height:100%; overflow-y:auto}
+    body{margin:0; background:var(--bg); color:var(--text); font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:1100px; margin:28px auto; padding:0 14px}
+    .card{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 18px 55px rgba(0,0,0,.35)}
+    .header{display:flex; align-items:flex-end; justify-content:space-between; gap:12px}
+    .title{font-size:34px; font-weight:800; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:13px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .field{flex:1 1 220px}
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+    select, textarea, input{
+      width:100%;
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+    }
+    textarea{min-height:120px; resize:vertical}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    button{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:650;
+    }
+    button.primary{background:#2f6feb; border-color:#2f6feb}
+    button:disabled{opacity:.55; cursor:not-allowed}
+    .status{display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-top:8px; color:var(--muted); font-size:13px}
+    .dot{width:9px; height:9px; border-radius:999px; background:var(--muted)}
+    .dot.ok{background:var(--ok)}
+    .dot.bad{background:var(--bad)}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
+    @media (max-width:900px){ .grid2{grid-template-columns:1fr} }
+    .outCard{background:var(--panel2); border:1px solid var(--line); border-radius:18px; padding:12px}
+    .outHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+    .outTitle{font-weight:800}
+    .count{color:var(--muted); font-size:12px}
+    pre{
+      margin:0; white-space:pre-wrap; word-break:break-word;
+      background:rgba(0,0,0,.20);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      min-height:90px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      font-size:13px;
+      line-height:1.55;
+    }
+    .footer{margin-top:14px; text-align:center; color:var(--muted); font-size:12px}
   </style>
 </head>
-
 <body>
-<div class="wrap">
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <div>
+          <div class="title">Nashr</div>
+          <div class="sub">Demo Version • 2025</div>
+        </div>
+        <div class="row" style="justify-content:flex-end; margin:0">
+          <button id="healthBtn" title="health">health</button>
+          <button id="apiBtn" title="API endpoint">API: /api/run</button>
+        </div>
+      </div>
 
-  <div class="card">
-    <h1>Nashr</h1>
-    <div class="muted">Demo Version • 2025</div>
-  </div>
+      <div class="row" style="margin-top:14px">
+        <div class="field" style="flex:1 1 100%">
+          <label>الفكرة / الموضوع</label>
+          <textarea id="topic" placeholder="اكتب الفكرة هنا..."></textarea>
+          <div class="sub" style="margin-top:6px">النتيجة قابلة للتعديل قبل النشر</div>
+        </div>
+      </div>
 
-  <div class="card">
-    <h3>الفكرة / الموضوع</h3>
-    <textarea id="topic" placeholder="اكتب الفكرة هنا..."></textarea>
+      <div class="row">
+        <div class="field">
+          <label>المنصة</label>
+          <select id="platform">
+            <option>LinkedIn + X</option>
+            <option>LinkedIn فقط</option>
+            <option>X فقط</option>
+          </select>
+        </div>
 
-    <div class="grid">
-      <select id="lang">
-        <option value="ar">العربية</option>
-        <option value="en">English</option>
-      </select>
+        <div class="field">
+          <label>النبرة</label>
+          <select id="tone">
+            <option>احترافية</option>
+            <option>ودية</option>
+            <option>جريئة</option>
+            <option>مقنعة</option>
+            <option>مختصرة</option>
+          </select>
+        </div>
 
-      <select id="audience">
-        <option value="رواد الأعمال">رواد الأعمال</option>
-        <option value="مستثمرون">مستثمرون</option>
-        <option value="صناع محتوى">صناع محتوى</option>
-      </select>
+        <div class="field">
+          <label>الجمهور</label>
+          <select id="audience">
+            <option>رواد الأعمال</option>
+            <option>مشاهير وصناع محتوى</option>
+            <option>مستثمرون</option>
+            <option>قيادات تنفيذية</option>
+            <option>عملاء محتملون</option>
+          </select>
+        </div>
 
-      <select id="tone">
-        <option value="احترافية">احترافية</option>
-        <option value="ملهمة">ملهمة</option>
-        <option value="تحليلية">تحليلية</option>
-      </select>
+        <div class="field">
+          <label>اللغة</label>
+          <select id="language">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
 
-      <select id="platform">
-        <option value="linkedin_x">LinkedIn + X</option>
-        <option value="x">X فقط</option>
-        <option value="linkedin">LinkedIn فقط</option>
-      </select>
+      <div class="actions">
+        <button class="primary" id="genBtn">توليد المحتوى</button>
+        <button id="copyAllBtn">نسخ الكل</button>
+      </div>
+
+      <div class="status">
+        <span id="statusDot" class="dot"></span>
+        <span id="statusText">Ready</span>
+      </div>
     </div>
 
-    <div class="grid" style="margin-top:16px">
-      <button id="copyAll" class="secondary">نسخ الكل</button>
-      <button id="generate" class="primary">توليد المحتوى</button>
+    <div class="grid2">
+      <div class="outCard">
+        <div class="outHead">
+          <div class="outTitle">X</div>
+          <div style="display:flex; gap:8px; align-items:center">
+            <div class="count"><span id="xCount">0</span>/280</div>
+            <button id="copyXBtn">نسخ</button>
+          </div>
+        </div>
+        <pre id="xOut"></pre>
+      </div>
+
+      <div class="outCard">
+        <div class="outHead">
+          <div class="outTitle">LinkedIn</div>
+          <button id="copyLiBtn">نسخ</button>
+        </div>
+        <pre id="liOut"></pre>
+      </div>
     </div>
 
-    <div id="status" class="status"></div>
-  </div>
+    <div class="outCard" style="margin-top:12px">
+      <div class="outHead">
+        <div class="outTitle">سلسلة / ردود / ترند (Debug)</div>
+        <button id="copyExtraBtn">نسخ</button>
+      </div>
+      <pre id="extraOut"></pre>
+    </div>
 
-  <div class="card">
-    <span class="tag">X</span>
-    <div id="xOut" class="output"></div>
+    <div class="footer">Nashr © 2025 • Demo Version</div>
   </div>
-
-  <div class="card">
-    <span class="tag">LinkedIn</span>
-    <div id="linkedinOut" class="output"></div>
-  </div>
-
-  <div class="card">
-    <span class="tag">سلسلة / ترند / Debug</span>
-    <div id="extraOut" class="output"></div>
-  </div>
-
-</div>
 
 <script type="module">
-  const btn = document.getElementById("generate");
-  const status = document.getElementById("status");
+  const $ = (id) => document.getElementById(id);
 
-  const xOut = document.getElementById("xOut");
-  const linkedinOut = document.getElementById("linkedinOut");
-  const extraOut = document.getElementById("extraOut");
+  const topic = $("topic");
+  const platform = $("platform");
+  const tone = $("tone");
+  const audience = $("audience");
+  const language = $("language");
 
-  function pick(obj, paths) {
-    for (const p of paths) {
-      try {
-        const val = p.split('.').reduce((a, k) => (a && a[k] !== undefined ? a[k] : undefined), obj);
-        if (typeof val === "string" && val.trim()) return val;
-      } catch {}
-    }
-    return "";
+  const genBtn = $("genBtn");
+  const copyAllBtn = $("copyAllBtn");
+  const copyXBtn = $("copyXBtn");
+  const copyLiBtn = $("copyLiBtn");
+  const copyExtraBtn = $("copyExtraBtn");
+
+  const xOut = $("xOut");
+  const liOut = $("liOut");
+  const extraOut = $("extraOut");
+
+  const xCount = $("xCount");
+  const statusDot = $("statusDot");
+  const statusText = $("statusText");
+
+  const healthBtn = $("healthBtn");
+  const apiBtn = $("apiBtn");
+
+  function setStatus(kind, text){
+    statusText.textContent = text;
+    statusDot.className = "dot " + (kind || "");
   }
 
-  btn.onclick = async () => {
-    const topic = document.getElementById("topic").value.trim();
-    if (!topic) {
-      status.className = "status warn";
-      status.textContent = "⚠️ اكتب الفكرة أولاً";
+  function clampX(s){
+    if(!s) return "";
+    s = String(s).trim();
+    if(s.length <= 280) return s;
+    return s.slice(0,277).trimEnd() + "...";
+  }
+
+  function updateXCounter(){
+    const n = (xOut.textContent || "").length;
+    xCount.textContent = String(n);
+  }
+
+  function safeStr(v){
+    if (v === null || v === undefined) return "";
+    if (typeof v === "string") return v;
+    try { return JSON.stringify(v, null, 2); } catch { return String(v); }
+  }
+
+  // ✅ THIS is the important part: parse ANY likely response shape
+  function parseApiResponse(json){
+    // expected: { ok:true, output:{ linkedin, x, language, series, trend, replies ... } }
+    const out = json?.output ?? json?.data?.output ?? json?.result?.output ?? json?.data ?? json?.result ?? json;
+
+    const linkedin =
+      out?.linkedin ?? out?.linkedIn ?? out?.li ?? json?.linkedin ?? json?.linkedIn ?? "";
+
+    const x =
+      out?.x ?? out?.twitter ?? out?.tweet ?? json?.x ?? json?.twitter ?? "";
+
+    const series =
+      out?.series ?? out?.thread ?? out?.threads ?? "";
+
+    const replies =
+      out?.replies ?? out?.reply ?? "";
+
+    const trend =
+      out?.trend ?? out?.trends ?? "";
+
+    const debug = {
+      ok: json?.ok,
+      keys: Object.keys(json || {}),
+      outputKeys: Object.keys(out || {}),
+      raw: json
+    };
+
+    return {
+      linkedin: safeStr(linkedin).trim(),
+      x: safeStr(x).trim(),
+      series: safeStr(series).trim(),
+      replies: safeStr(replies).trim(),
+      trend: safeStr(trend).trim(),
+      debug: safeStr(debug)
+    };
+  }
+
+  async function copyToClipboard(text){
+    const t = (text || "").trim();
+    if (!t) return false;
+    try{
+      await navigator.clipboard.writeText(t);
+      return true;
+    }catch(e){
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = t;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      return true;
+    }
+  }
+
+  function renderOutputs({x, linkedin, series, replies, trend, debug}){
+    // Always show something to detect parsing problems
+    xOut.textContent = x || "";
+    liOut.textContent = linkedin || "";
+
+    const blocks = [];
+    if (series) blocks.push("=== Series ===\n" + series);
+    if (replies) blocks.push("=== Replies ===\n" + replies);
+    if (trend) blocks.push("=== Trend ===\n" + trend);
+
+    // Always include debug so we can see the real response when empty
+    blocks.push("=== Debug ===\n" + debug);
+
+    extraOut.textContent = blocks.join("\n\n---\n\n");
+    updateXCounter();
+  }
+
+  function mapPlatformForApi(uiValue){
+    // Your backend expects: "LinkedIn + X" OR contains "linkedin" and "x"
+    if (uiValue.includes("LinkedIn + X")) return "LinkedIn + X";
+    if (uiValue.includes("LinkedIn")) return "LinkedIn";
+    return "X";
+  }
+
+  genBtn.addEventListener("click", async () => {
+    const text = (topic.value || "").trim();
+    if(!text){
+      setStatus("bad", "اكتب الفكرة أولاً");
       return;
     }
 
-    btn.disabled = true;
-    status.className = "status";
-    status.textContent = "⏳ يتم التوليد...";
+    setStatus("", "Running…");
+    genBtn.disabled = true;
 
+    // clear previous outputs
     xOut.textContent = "";
-    linkedinOut.textContent = "";
+    liOut.textContent = "";
     extraOut.textContent = "";
+    updateXCounter();
 
-    try {
+    try{
       const payload = {
-        topic,
-        idea: topic,
-        prompt: topic,
-        language: document.getElementById("lang").value,
-        lang: document.getElementById("lang").value,
-        audience: document.getElementById("audience").value,
-        tone: document.getElementById("tone").value,
-        platform: document.getElementById("platform").value
+        text,
+        platform: mapPlatformForApi(platform.value),
+        tone: tone.value,
+        audience: audience.value,
+        language: language.value
       };
 
-      const res = await fetch("/api/run", {
+      const r = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 
-      let dataText = await res.text();
-      let data = {};
-      try { data = JSON.parse(dataText); } catch { data = { raw: dataText }; }
+      const status = r.status;
+      let json = null;
 
-      // حاول نطلع المخرجات من أكثر من مكان محتمل
-      const xText = pick(data, [
-        "x","X","tweet","tweetText","xOut",
-        "result.x","result.X","result.tweet",
-        "data.x","data.X","data.tweet",
-        "outputs.x","outputs.X","outputs.tweet",
-        "content.x","content.X","content.tweet"
-      ]);
-
-      const liText = pick(data, [
-        "linkedin","LinkedIn","li","linkedinText","linkedinOut",
-        "result.linkedin","result.LinkedIn","result.li",
-        "data.linkedin","data.LinkedIn","data.li",
-        "outputs.linkedin","outputs.LinkedIn","outputs.li",
-        "content.linkedin","content.LinkedIn","content.li"
-      ]);
-
-      const extraText = pick(data, [
-        "extra","series","trend","debug",
-        "result.extra","result.series","result.trend",
-        "data.extra","data.series","data.trend",
-        "outputs.extra","outputs.series","outputs.trend",
-        "content.extra","content.series","content.trend"
-      ]);
-
-      xOut.textContent = xText || "";
-      linkedinOut.textContent = liText || "";
-      extraOut.textContent = extraText || "";
-
-      // إذا ما طلع شيء، اعرض JSON كامل للتشخيص فوراً
-      const nothing = !(xText || liText || extraText);
-      if (nothing) {
-        extraOut.textContent = "DEBUG RESPONSE:\n" + JSON.stringify(data, null, 2);
-        status.className = "status warn";
-        status.textContent = `⚠️ وصل رد من السيرفر لكن بدون مفاتيح متوقعة (HTTP ${res.status})`;
-      } else {
-        status.className = "status ok";
-        status.textContent = `✅ Done (HTTP ${res.status})`;
+      try{
+        json = await r.json();
+      }catch(e){
+        const txt = await r.text();
+        renderOutputs({ x:"", linkedin:"", series:"", replies:"", trend:"", debug: txt || "Non-JSON response" });
+        setStatus("bad", `Bad response (HTTP ${status})`);
+        return;
       }
 
-    } catch (e) {
-      status.className = "status bad";
-      status.textContent = "❌ حدث خطأ أثناء التوليد";
-      extraOut.textContent = String(e);
-      console.error(e);
-    }
+      const parsed = parseApiResponse(json);
 
-    btn.disabled = false;
-  };
+      // If OpenAI returned empty, show a clear marker
+      if (!parsed.x && !parsed.linkedin){
+        parsed.debug = parsed.debug + "\n\nNOTE: output fields empty. Check backend logs / OPENAI_API_KEY.";
+        // also show raw json at least
+      }
 
-  // ✅ COPY ALL
-  document.getElementById("copyAll").addEventListener("click", async () => {
-    const fullText = `X:\n${xOut.innerText}\n\n--------------------\n\nLinkedIn:\n${linkedinOut.innerText}\n\n--------------------\n\nExtra/Debug:\n${extraOut.innerText}\n`;
+      // Ensure X is <= 280 just in case
+      parsed.x = clampX(parsed.x);
 
-    if (!fullText.trim()) {
-      alert("لا يوجد محتوى للنسخ");
-      return;
-    }
+      renderOutputs(parsed);
 
-    try {
-      await navigator.clipboard.writeText(fullText);
-      const btnCopy = document.getElementById("copyAll");
-      btnCopy.innerText = "✅ تم النسخ";
-      setTimeout(() => (btnCopy.innerText = "نسخ الكل"), 1500);
-    } catch (err) {
-      alert("فشل النسخ");
-      console.error(err);
+      if (r.ok && (parsed.x || parsed.linkedin)){
+        setStatus("ok", `Done (HTTP ${status}) ✅`);
+      }else if (r.ok){
+        setStatus("warn", `Done (HTTP ${status}) لكن بدون محتوى ⚠️`);
+      }else{
+        setStatus("bad", `Error (HTTP ${status}) ❌`);
+      }
+
+    }catch(err){
+      renderOutputs({ x:"", linkedin:"", series:"", replies:"", trend:"", debug: (err?.message || String(err)) });
+      setStatus("bad", "Request failed ❌");
+    }finally{
+      genBtn.disabled = false;
     }
   });
+
+  copyXBtn.addEventListener("click", async () => {
+    const ok = await copyToClipboard(xOut.textContent);
+    setStatus(ok ? "ok" : "warn", ok ? "Copied X ✅" : "Nothing to copy");
+  });
+
+  copyLiBtn.addEventListener("click", async () => {
+    const ok = await copyToClipboard(liOut.textContent);
+    setStatus(ok ? "ok" : "warn", ok ? "Copied LinkedIn ✅" : "Nothing to copy");
+  });
+
+  copyExtraBtn.addEventListener("click", async () => {
+    const ok = await copyToClipboard(extraOut.textContent);
+    setStatus(ok ? "ok" : "warn", ok ? "Copied Debug ✅" : "Nothing to copy");
+  });
+
+  copyAllBtn.addEventListener("click", async () => {
+    const blocks = [];
+    if (xOut.textContent.trim()) blocks.push("X:\n" + xOut.textContent.trim());
+    if (liOut.textContent.trim()) blocks.push("LinkedIn:\n" + liOut.textContent.trim());
+    if (extraOut.textContent.trim()) blocks.push("Extra/Debug:\n" + extraOut.textContent.trim());
+    const ok = await copyToClipboard(blocks.join("\n\n---\n\n"));
+    setStatus(ok ? "ok" : "warn", ok ? "Copied All ✅" : "Nothing to copy");
+  });
+
+  healthBtn.addEventListener("click", async () => {
+    try{
+      const r = await fetch("/health");
+      const t = await r.text();
+      extraOut.textContent = "=== /health ===\n" + t;
+      setStatus(r.ok ? "ok" : "warn", r.ok ? "Health OK ✅" : "Health not OK ⚠️");
+    }catch(e){
+      extraOut.textContent = "Health error: " + (e?.message || String(e));
+      setStatus("bad", "Health failed ❌");
+    }
+  });
+
+  apiBtn.addEventListener("click", () => {
+    extraOut.textContent = "POST /api/run\nPayload: { text, platform, tone, audience, language }";
+    setStatus("", "API: /api/run");
+  });
+
+  // initialize
+  setStatus("", "Ready");
+  updateXCounter();
 </script>
 </body>
 </html>
