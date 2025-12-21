@@ -1,162 +1,128 @@
-// backend/api-run.js
 import OpenAI from "openai";
 
-function clampX(s) {
+/**
+ * Helper: clip text to maxChars (X = 280)
+ */
+function clipTo(text, maxChars) {
+  const s = String(text || "").trim();
   if (!s) return "";
-  s = String(s).trim();
-  if (s.length <= 280) return s;
-  return s.slice(0, 277).trimEnd() + "...";
+  if (s.length <= maxChars) return s;
+  return s.slice(0, maxChars - 1).trimEnd() + "…";
 }
 
-function platformLabel(platform) {
-  if (!platform) return "Nashr";
-  const p = String(platform).toLowerCase();
-  if (p.includes("linkedin") && p.includes("x")) return "Nashr (LinkedIn + X)";
-  if (p.includes("linkedin")) return "Nashr (LinkedIn)";
-  if (p === "x" || p.includes("twitter")) return "Nashr (X)";
-  return "Nashr";
-}
-
-function buildSystem(language) {
-  const isEN = language === "en";
-  return isEN
-    ? `You are Nashr, a professional social media content generator.
-Rules:
-- Output MUST be in English only.
-- No "Version 1/2", no bilingual output, no translation.
-- Use clear structure, professional tone, and ready-to-post writing.
-- If platform is X: keep it <= 280 chars.
-- If platform is LinkedIn: allow longer, add value and clarity.
-- Start the post with: "Nashr | " followed by a short hook line.
-Return only the post text.`
-    : `أنت "نشر" Nashr مولّد محتوى احترافي لمنصات التواصل.
-القواعد:
-- المخرجات MUST تكون بالعربية فقط.
-- ممنوع (Version 1/2) أو إخراج ثنائي لغة أو ترجمة.
-- جاهز للنشر، واضح ومهني.
-- إذا المنصة X: لا تتجاوز 280 حرف.
-- إذا LinkedIn: مسموح أطول مع قيمة وترتيب.
-- ابدأ المنشور بسطر: "Nashr | " ثم Hook مختصر.
-أعد النص النهائي فقط دون أي شروحات.`;
-}
-
-function buildUser({ text, platform, tone, audience, language }) {
-  const isEN = language === "en";
-  const plat = platform || "LinkedIn + X";
-  const t = tone || (isEN ? "Professional" : "احترافية");
-  const a = audience || (isEN ? "Business Owners" : "رواد الأعمال");
-
-  return isEN
-    ? `Topic: ${text}
-Platform: ${plat}
-Tone: ${t}
-Audience: ${a}
-
-Deliver ONE ready-to-post text only.`
-    : `الموضوع: ${text}
-المنصة: ${plat}
-النبرة: ${t}
-الجمهور: ${a}
-
-أعد نصًا واحدًا جاهزًا للنشر فقط.`;
-}
-
-async function generate(openai, { text, platform, tone, audience, language }) {
-  const sys = buildSystem(language);
-  const usr = buildUser({ text, platform, tone, audience, language });
-
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
-
-  const resp = await openai.chat.completions.create({
-    model,
-    messages: [
-      { role: "system", content: sys },
-      { role: "user", content: usr }
-    ],
-    temperature: 0.7
-  });
-
-  const out = (resp.choices?.[0]?.message?.content || "").trim();
-
-  // Platform-specific shaping
-  const plat = String(platform || "").toLowerCase();
-  const isX = plat === "x" || plat.includes("twitter");
-  const label = platformLabel(platform);
-
-  let finalText = out;
-
-  // Ensure brand line at top (extra safety)
-  if (!finalText.toLowerCase().startsWith("nashr |")) {
-    finalText = `Nashr | ${finalText}`;
-  }
-
-  if (isX) {
-    finalText = clampX(finalText);
-  }
-
-  return { finalText, label };
+/**
+ * Helper: parse tagged blocks like:
+ * [X_1]...[/X_1]
+ */
+function extractTag(text, tag) {
+  const re = new RegExp(`\$begin:math:display$\$\{tag\}\\$end:math:display$([\\s\\S]*?)\$begin:math:display$\\\\\/\$\{tag\}\\$end:math:display$`, "i");
+  const m = String(text || "").match(re);
+  return m ? m[1].trim() : "";
 }
 
 export default async function apiRun(req, res) {
   try {
-    const { text, platform, tone, audience, language } = req.body || {};
-
-    if (!text || !String(text).trim()) {
-      return res.status(400).json({ ok: false, error: "Missing text" });
-    }
-
-    const lang = language === "en" ? "en" : "ar";
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    // If user selects "LinkedIn + X" we generate TWO separate outputs (clean and predictable)
-    const plat = platform || "LinkedIn + X";
-    const lower = String(plat).toLowerCase();
-
-    let linkedin = "";
-    let x = "";
-
-    if (lower.includes("linkedin") && lower.includes("x")) {
-      // LinkedIn version
-      const li = await generate(openai, {
-        text,
-        platform: "LinkedIn",
-        tone,
-        audience,
-        language: lang
-      });
-      linkedin = li.finalText;
-
-      // X version
-      const tw = await generate(openai, {
-        text,
-        platform: "X",
-        tone,
-        audience,
-        language: lang
-      });
-      x = tw.finalText;
-
-      return res.json({
-        ok: true,
-        output: { linkedin, x, language: lang }
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({
+        ok: false,
+        error: "Missing OPENAI_API_KEY (set it in Render Environment Variables).",
       });
     }
 
-    if (lower.includes("linkedin")) {
-      const li = await generate(openai, { text, platform: "LinkedIn", tone, audience, language: lang });
-      linkedin = li.finalText;
-      return res.json({ ok: true, output: { linkedin, x: "", language: lang } });
+    const client = new OpenAI({ apiKey });
+
+    const {
+      text,
+      platform = "Both",
+      tone = "احترافية",
+      audience = "رواد الأعمال",
+      language = "العربية",
+    } = req.body || {};
+
+    const inputText = String(text || "").trim();
+    if (!inputText) {
+      return res.status(400).json({ ok: false, error: "text is required" });
     }
 
-    // Default to X
-    const tw = await generate(openai, { text, platform: "X", tone, audience, language: lang });
-    x = tw.finalText;
-    return res.json({ ok: true, output: { linkedin: "", x, language: lang } });
+    // ✅ Prompt: 3 Hooks for X (<=280) + 3 LinkedIn variations
+    const prompt = `
+أنت مساعد كتابة محتوى عربي احترافي باسم "Nashr".
 
+المعطيات:
+- Platform: ${platform}
+- Tone: ${tone}
+- Audience: ${audience}
+- Language: ${language}
+
+الفكرة/الموضوع:
+${inputText}
+
+المطلوب (مهم جدًا):
+1) اكتب 3 نسخ لـ LinkedIn (A/B/C) — كل نسخة مختلفة قليلًا في الصياغة والزوايا.
+   - تنسيق واضح، فقرات قصيرة، و3–6 نقاط عند الحاجة.
+   - اجعلها جاهزة للنشر.
+
+2) اكتب 3 خيارات لـ X (1/2/3):
+   - كل خيار يجب ألا يتجاوز 280 حرفًا (حرف = character).
+   - كل خيار يكون "Hook" قوي + قيمة + هاشتاقين فقط.
+   - لا تضع مقدمة طويلة.
+
+قواعد إخراج صارمة (لا تكسرها):
+- أعد الإخراج بهذه الصيغة فقط (بدون أي كلام خارجها):
+[LINKEDIN_A]
+...النص...
+[/LINKEDIN_A]
+[LINKEDIN_B]
+...النص...
+[/LINKEDIN_B]
+[LINKEDIN_C]
+...النص...
+[/LINKEDIN_C]
+[X_1]
+...النص...
+[/X_1]
+[X_2]
+...النص...
+[/X_2]
+[X_3]
+...النص...
+[/X_3]
+`.trim();
+
+    const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+
+    const response = await client.responses.create({
+      model,
+      input: prompt,
+    });
+
+    const raw =
+      response.output_text ||
+      (response.output?.[0]?.content?.[0]?.text ?? "") ||
+      "";
+
+    // Parse and enforce X length
+    const linkedinA = extractTag(raw, "LINKEDIN_A");
+    const linkedinB = extractTag(raw, "LINKEDIN_B");
+    const linkedinC = extractTag(raw, "LINKEDIN_C");
+
+    const x1 = clipTo(extractTag(raw, "X_1"), 280);
+    const x2 = clipTo(extractTag(raw, "X_2"), 280);
+    const x3 = clipTo(extractTag(raw, "X_3"), 280);
+
+    const output = {
+      linkedin: { A: linkedinA, B: linkedinB, C: linkedinC },
+      x: { "1": x1, "2": x2, "3": x3 },
+      raw, // optional للتشخيص
+    };
+
+    // If something missing, still return raw for debug
+    return res.json({ ok: true, output });
   } catch (err) {
     return res.status(500).json({
       ok: false,
-      error: err?.message || "Server error"
+      error: err?.message || "Unknown server error",
     });
   }
 }
