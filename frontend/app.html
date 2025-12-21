@@ -1,43 +1,358 @@
-<script>
-  const ADMIN_TOKEN = "nashr_dev_admin_2025";
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nashr — App</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* fallback minimal styling لو styles.css ما ظهر */
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .row > * { flex: 1; min-width: 180px; }
+    textarea { width:100%; min-height:120px; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.15); color: inherit; }
+    select, button { padding:10px 12px; border-radius: 12px; border:1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.15); color: inherit; }
+    button.primary { background: #3b82f6; border-color:#3b82f6; color:#fff; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    .muted { opacity:.8; font-size: 13px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
+    .panel { min-height: 170px; white-space: pre-wrap; line-height: 1.9; padding: 12px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.18); }
+    .panelHead { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:10px; }
+    .pill { font-size: 12px; padding: 6px 10px; border-radius: 999px; border:1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.15); }
+    .btnSmall { padding: 6px 10px; font-size: 12px; border-radius: 999px; }
+    .ok { color: #22c55e; }
+    .bad { color:#ef4444; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+</head>
 
-  async function run() {
-    const topic = document.getElementById("topic").value;
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row" style="align-items:center; justify-content:space-between;">
+        <div>
+          <div style="font-size:22px; font-weight:700;">Nashr</div>
+          <div class="muted">Demo Version — 2025</div>
+        </div>
+        <div class="row" style="justify-content:flex-end;">
+          <a class="pill mono" href="/health" target="_blank" rel="noreferrer">health</a>
+          <span class="pill mono">API: /api/run</span>
+        </div>
+      </div>
 
-    const payload = {
-      topic,
-      platform: "LinkedIn + X",
-      tone: "احترافية",
-      audience: "رواد الأعمال",
-      language: "العربية",
-    };
+      <div style="margin-top:12px;">
+        <div class="muted" style="margin-bottom:6px;">الفكرة / الموضوع</div>
+        <textarea id="idea" placeholder="اكتب الفكرة هنا... مثال: الحوكمة"></textarea>
+      </div>
 
-    try {
-      const res = await fetch("/api/run", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + ADMIN_TOKEN
-        },
-        body: JSON.stringify(payload)
-      });
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <div class="muted">اللغة</div>
+          <select id="lang">
+            <option value="ar" selected>العربية</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div>
+          <div class="muted">الجمهور</div>
+          <select id="audience">
+            <option value="رواد الأعمال" selected>رواد الأعمال</option>
+            <option value="قيادات تنفيذية">قيادات تنفيذية</option>
+            <option value="موظفون">موظفون</option>
+            <option value="عملاء">عملاء</option>
+          </select>
+        </div>
+        <div>
+          <div class="muted">النبرة</div>
+          <select id="tone">
+            <option value="احترافية" selected>احترافية</option>
+            <option value="ودية">ودية</option>
+            <option value="حازمة">حازمة</option>
+            <option value="مختصرة">مختصرة</option>
+          </select>
+        </div>
+        <div>
+          <div class="muted">المنصة</div>
+          <select id="platform">
+            <option value="linkedin+x" selected>LinkedIn + X</option>
+            <option value="linkedin">LinkedIn فقط</option>
+            <option value="x">X فقط</option>
+          </select>
+        </div>
+      </div>
 
-      const data = await res.json();
+      <div class="row" style="margin-top:12px; align-items:center;">
+        <button id="btnRun" class="primary" onclick="run()">توليد المحتوى</button>
+        <button id="btnCopyAll" onclick="copyAll()">نسخ الكل</button>
+        <div class="muted" style="margin-inline-start:auto;">
+          <span id="http" class="pill mono">—</span>
+          <span id="status" class="pill">الحالة: —</span>
+        </div>
+      </div>
+    </div>
 
-      if (!data.ok) {
-        alert(data.error || "فشل التوليد");
+    <div class="grid">
+      <!-- LinkedIn -->
+      <div class="card">
+        <div class="panelHead">
+          <span class="pill mono">LinkedIn (A/B/C)</span>
+        </div>
+
+        <div class="panelHead">
+          <span class="muted mono">LinkedIn A</span>
+          <button class="btnSmall" onclick="copyText('outLinkedInA')">نسخ</button>
+        </div>
+        <div id="outLinkedInA" class="panel">—</div>
+
+        <div style="height:10px;"></div>
+
+        <div class="panelHead">
+          <span class="muted mono">LinkedIn B</span>
+          <button class="btnSmall" onclick="copyText('outLinkedInB')">نسخ</button>
+        </div>
+        <div id="outLinkedInB" class="panel">—</div>
+
+        <div style="height:10px;"></div>
+
+        <div class="panelHead">
+          <span class="muted mono">LinkedIn C</span>
+          <button class="btnSmall" onclick="copyText('outLinkedInC')">نسخ</button>
+        </div>
+        <div id="outLinkedInC" class="panel">—</div>
+      </div>
+
+      <!-- X -->
+      <div class="card">
+        <div class="panelHead">
+          <span class="pill mono">X (3 خيارات — كل خيار ≤ 280)</span>
+        </div>
+
+        <div class="panelHead">
+          <span class="muted mono"><span id="cX1">0</span>/280 — X_1</span>
+          <button class="btnSmall" onclick="copyText('outX1')">نسخ</button>
+        </div>
+        <div id="outX1" class="panel">—</div>
+
+        <div style="height:10px;"></div>
+
+        <div class="panelHead">
+          <span class="muted mono"><span id="cX2">0</span>/280 — X_2</span>
+          <button class="btnSmall" onclick="copyText('outX2')">نسخ</button>
+        </div>
+        <div id="outX2" class="panel">—</div>
+
+        <div style="height:10px;"></div>
+
+        <div class="panelHead">
+          <span class="muted mono"><span id="cX3">0</span>/280 — X_3</span>
+          <button class="btnSmall" onclick="copyText('outX3')">نسخ</button>
+        </div>
+        <div id="outX3" class="panel">—</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="panelHead">
+        <span class="pill mono">Logs</span>
+        <span class="muted">للتحقق السريع إذا ظهر خطأ</span>
+      </div>
+      <div id="debug" class="panel mono" style="min-height:120px;">—</div>
+    </div>
+
+    <div class="muted" style="text-align:center; margin: 18px 0;">Nashr © 2025 — Demo</div>
+  </div>
+
+  <script>
+    // ✅ Admin token (كما طلبت)
+    const ADMIN_TOKEN = "nashr_dev_admin_2025";
+
+    function safeTrim(s){ return (s || "").toString().trim(); }
+
+    function countChars(elId, outId){
+      const t = safeTrim(document.getElementById(elId).innerText);
+      document.getElementById(outId).innerText = String(t.length);
+    }
+
+    function setStatus(ok, httpCode, msg){
+      const s = document.getElementById("status");
+      const h = document.getElementById("http");
+      h.textContent = httpCode ? `HTTP ${httpCode}` : "—";
+      s.textContent = `الحالة: ${msg}`;
+      s.classList.remove("ok","bad");
+      s.classList.add(ok ? "ok" : "bad");
+    }
+
+    function splitOutput(text){
+      const t = (text || "").toString();
+
+      // يدعم شكل الـ logs عندك: [LINKEDIN_A]...[/LINKEDIN_A]
+      const get = (tag) => {
+        const re = new RegExp(`\$begin:math:display$\$\{tag\}\\$end:math:display$([\\s\\S]*?)\$begin:math:display$\\\\\/\$\{tag\}\\$end:math:display$`, "i");
+        const m = t.match(re);
+        return m ? safeTrim(m[1]) : "";
+      };
+
+      const linkedinA = get("LINKEDIN_A");
+      const linkedinB = get("LINKEDIN_B");
+      const linkedinC = get("LINKEDIN_C");
+      const x1 = get("X_1");
+      const x2 = get("X_2");
+      const x3 = get("X_3");
+
+      // fallback لو جاء JSON
+      if(!linkedinA && !x1){
+        try{
+          const j = JSON.parse(t);
+          return {
+            linkedinA: safeTrim(j.linkedinA || j.linkedin_a || ""),
+            linkedinB: safeTrim(j.linkedinB || j.linkedin_b || ""),
+            linkedinC: safeTrim(j.linkedinC || j.linkedin_c || ""),
+            x1: safeTrim(j.x1 || j.x_1 || ""),
+            x2: safeTrim(j.x2 || j.x_2 || ""),
+            x3: safeTrim(j.x3 || j.x_3 || ""),
+          };
+        }catch(e){}
+      }
+
+      return { linkedinA, linkedinB, linkedinC, x1, x2, x3 };
+    }
+
+    function enforce280(s){
+      const text = safeTrim(s);
+      if(text.length <= 280) return text;
+      // قص ذكي مع …
+      return text.slice(0, 277).trimEnd() + "…";
+    }
+
+    function render(outputText){
+      const parts = splitOutput(outputText);
+
+      document.getElementById("outLinkedInA").innerText = parts.linkedinA || "—";
+      document.getElementById("outLinkedInB").innerText = parts.linkedinB || "—";
+      document.getElementById("outLinkedInC").innerText = parts.linkedinC || "—";
+
+      document.getElementById("outX1").innerText = parts.x1 ? enforce280(parts.x1) : "—";
+      document.getElementById("outX2").innerText = parts.x2 ? enforce280(parts.x2) : "—";
+      document.getElementById("outX3").innerText = parts.x3 ? enforce280(parts.x3) : "—";
+
+      countChars("outX1","cX1");
+      countChars("outX2","cX2");
+      countChars("outX3","cX3");
+    }
+
+    async function run(){
+      const btn = document.getElementById("btnRun");
+      const debug = document.getElementById("debug");
+
+      const payload = {
+        idea: safeTrim(document.getElementById("idea").value),
+        language: document.getElementById("lang").value,
+        audience: document.getElementById("audience").value,
+        tone: document.getElementById("tone").value,
+        platform: document.getElementById("platform").value,
+      };
+
+      if(!payload.idea){
+        alert("اكتب الفكرة أولاً");
         return;
       }
 
-      render(data.output);
+      btn.disabled = true;
+      setStatus(true, "", "جاري التوليد...");
+      debug.innerText = "Running...";
 
-    } catch (e) {
-      alert("خطأ في الاتصال");
-      console.error(e);
+      try{
+        const res = await fetch("/api/run", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + ADMIN_TOKEN
+          },
+          body: JSON.stringify(payload)
+        });
+
+        document.getElementById("http").textContent = `HTTP ${res.status}`;
+
+        const data = await res.json().catch(() => ({}));
+
+        if(!res.ok){
+          debug.innerText = JSON.stringify(data, null, 2) || "Request failed";
+          setStatus(false, res.status, data?.error || "فشل");
+          return;
+        }
+
+        const out = data.output || data.text || "";
+        debug.innerText = out || JSON.stringify(data, null, 2) || "No output";
+        render(out);
+        setStatus(true, res.status, "تم");
+      }catch(e){
+        console.error(e);
+        debug.innerText = String(e?.message || e);
+        setStatus(false, "", "خطأ اتصال");
+        alert("خطأ في الاتصال");
+      }finally{
+        btn.disabled = false;
+      }
     }
-  }
 
-  function render(text) {
-    document.getElementById("output").innerText = text;
-  }
-</script>
+    async function copyText(elId){
+      const t = safeTrim(document.getElementById(elId).innerText);
+      if(!t || t === "—") return;
+      try{
+        await navigator.clipboard.writeText(t);
+      }catch(e){
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = t;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+    }
+
+    async function copyAll(){
+      const a = safeTrim(document.getElementById("outLinkedInA").innerText);
+      const b = safeTrim(document.getElementById("outLinkedInB").innerText);
+      const c = safeTrim(document.getElementById("outLinkedInC").innerText);
+      const x1 = safeTrim(document.getElementById("outX1").innerText);
+      const x2 = safeTrim(document.getElementById("outX2").innerText);
+      const x3 = safeTrim(document.getElementById("outX3").innerText);
+
+      const pack =
+`LinkedIn A:
+${a}
+
+LinkedIn B:
+${b}
+
+LinkedIn C:
+${c}
+
+X_1:
+${x1}
+
+X_2:
+${x2}
+
+X_3:
+${x3}`.trim();
+
+      try{
+        await navigator.clipboard.writeText(pack);
+      }catch(e){
+        const ta = document.createElement("textarea");
+        ta.value = pack;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+    }
+  </script>
+</body>
+</html>
