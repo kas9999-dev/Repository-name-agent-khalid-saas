@@ -4,299 +4,578 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nashr — App</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
+
+  <style>
+    /* Fallbacks in case styles.css missing some bits */
+    :root{
+      --bg:#070b14;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.04);
+      --line:rgba(255,255,255,.08);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.65);
+      --good:#46d27b;
+      --bad:#ff4d4d;
+      --warn:#ffcc66;
+    }
+    html,body{height:100%; overflow-y:auto;}
+    body{margin:0; background:var(--bg); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;}
+    a{color:inherit}
+    .wrap{max-width:1100px; margin:28px auto; padding:0 14px;}
+    .topbar{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px;}
+    .brand h1{margin:0; font-size:28px; letter-spacing:.3px;}
+    .brand .sub{margin-top:6px; color:var(--muted); font-size:13px}
+    .chips{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .chip{border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--muted); padding:8px 12px; border-radius:999px; font-size:12px}
+    .chip strong{color:var(--text); font-weight:600}
+    .chip.good{border-color:rgba(70,210,123,.35)}
+    .chip.bad{border-color:rgba(255,77,77,.35)}
+    .chip.warn{border-color:rgba(255,204,102,.35)}
+    .panel{border:1px solid var(--line); background:var(--panel); border-radius:18px; padding:14px; box-shadow:0 18px 60px rgba(0,0,0,.35)}
+    .panel + .panel{margin-top:14px}
+    .grid{display:grid; gap:14px}
+    .grid.two{grid-template-columns: 1fr 1fr}
+    @media (max-width: 980px){
+      .grid.two{grid-template-columns:1fr}
+    }
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+    textarea{
+      width:100%;
+      min-height:120px;
+      resize:vertical;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:var(--panel2);
+      color:var(--text);
+      padding:12px 12px;
+      outline:none;
+      line-height:1.65;
+    }
+    select,input{
+      width:100%;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--panel2);
+      color:var(--text);
+      padding:10px 10px;
+      outline:none;
+      font-size:13px;
+    }
+    .row{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px;}
+    @media (max-width: 980px){
+      .row{grid-template-columns:1fr 1fr}
+    }
+    .actions{display:flex; gap:10px; align-items:center; justify-content:flex-start; flex-wrap:wrap; margin-top:10px}
+    button{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+    }
+    button.primary{background:rgba(90,135,255,.22); border-color:rgba(90,135,255,.35)}
+    button.ghost{background:transparent}
+    button:disabled{opacity:.45; cursor:not-allowed}
+    .hint{color:var(--muted); font-size:12px; margin-top:8px}
+    .kpis{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+    .kpi{font-size:12px; color:var(--muted)}
+    .kpi b{color:var(--text)}
+    .outCard{border:1px solid var(--line); background:rgba(255,255,255,.05); border-radius:18px; padding:14px; position:relative; min-height:220px}
+    .outHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+    .outTitle{font-weight:800; letter-spacing:.4px}
+    .outMeta{font-size:12px; color:var(--muted)}
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.75;
+      font-size:13px;
+      color:rgba(255,255,255,.9);
+      padding:10px 8px 0;
+    }
+    .copyBtn{position:absolute; bottom:12px; left:12px; border-radius:999px; padding:8px 12px}
+    .counter{font-size:12px; color:var(--muted)}
+    .footer{margin-top:18px; text-align:center; color:var(--muted); font-size:12px; padding:16px 10px; border-top:1px solid rgba(255,255,255,.06)}
+    .smallPanel{border:1px solid var(--line); background:rgba(255,255,255,.04); border-radius:14px; padding:12px}
+    .toggleRow{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px}
+    @media (max-width:980px){ .toggleRow{grid-template-columns:1fr} }
+    .divider{height:1px; background:rgba(255,255,255,.08); margin:12px 0}
+    .rightNote{font-size:12px; color:var(--muted); margin-top:8px}
+  </style>
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand__title">Nashr</div>
-      <div class="brand__sub">Demo Version • 2025</div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Nashr</h1>
+        <div class="sub">© Demo Version • 2025</div>
+      </div>
+
+      <div class="chips">
+        <span id="chipHealth" class="chip warn">health</span>
+        <span class="chip"><strong>API:</strong> /api/run</span>
+      </div>
     </div>
 
-    <div class="topbar__links">
-      <a class="pill" href="/health" target="_blank">health</a>
-      <a class="pill" href="/api/run" target="_blank">API: /api/run</a>
-    </div>
-  </header>
+    <!-- INPUT -->
+    <div class="panel">
+      <label for="idea">الفكرة / الموضوع</label>
+      <textarea id="idea" placeholder="اكتب الفكرة هنا..."></textarea>
 
-  <main class="wrap">
-    <section class="card">
-      <div class="grid">
-        <div class="field field--full">
-          <label for="text">الفكرة / الموضوع</label>
-          <textarea id="text" rows="5" placeholder="اكتب الفكرة هنا..."></textarea>
-          <div class="hint">النتيجة قابلة للتعديل قبل النشر</div>
-        </div>
+      <div class="rightNote">النتيجة قابلة للتعديل قبل النشر</div>
 
-        <div class="field">
+      <div class="divider"></div>
+
+      <div class="row">
+        <div>
           <label for="platform">المنصة</label>
           <select id="platform">
             <option>LinkedIn + X</option>
-            <option>LinkedIn</option>
             <option>X</option>
+            <option>LinkedIn</option>
           </select>
         </div>
 
-        <div class="field">
+        <div>
           <label for="tone">النبرة</label>
           <select id="tone">
             <option>احترافية</option>
-            <option>ودية</option>
-            <option>حماسية</option>
-            <option>مختصرة</option>
+            <option>ودّية</option>
+            <option>حادة (Strong POV)</option>
+            <option>إعلانية (Offer)</option>
           </select>
         </div>
 
-        <div class="field">
+        <div>
           <label for="audience">الجمهور</label>
           <select id="audience">
             <option>رواد الأعمال</option>
+            <option>صنّاع المحتوى</option>
+            <option>المشاهير</option>
             <option>المدراء التنفيذيون</option>
-            <option>المهتمون بالاستثمار</option>
-            <option>العملاء المحتملون</option>
+            <option>الشركات العائلية</option>
+            <option>المستثمرون</option>
           </select>
         </div>
 
-        <div class="field">
+        <div>
           <label for="language">اللغة</label>
           <select id="language">
-            <option value="ar" selected>العربية</option>
-            <option value="en">English</option>
+            <option>العربية</option>
+            <option>English</option>
           </select>
         </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="toggleRow">
+        <div class="smallPanel">
+          <label for="mode">الوضع</label>
+          <select id="mode">
+            <option value="post">Post — منشور واحد</option>
+            <option value="series">Series — سلسلة منشورات</option>
+            <option value="reply">Reply — ردود وتعليقات</option>
+            <option value="campaign">Campaign — حملة (3 منشورات)</option>
+            <option value="ad">Ad — إعلان / عرض</option>
+          </select>
+          <div class="hint">اختر “Series” إذا تبي محتوى متتابع (خيط/سلسلة).</div>
+        </div>
+
+        <div class="smallPanel">
+          <label for="goalHorizon">الهدف الزمني</label>
+          <select id="goalHorizon">
+            <option value="none">بدون مدة (توليد الآن)</option>
+            <option value="2w">هدف خلال أسبوعين</option>
+            <option value="1m">هدف خلال شهر</option>
+            <option value="45d">هدف خلال 45 يوم</option>
+            <option value="2m">هدف خلال شهرين</option>
+          </select>
+          <div class="hint">إذا ما اخترت مدة = النظام يولّد محتوى فوري للحضور العام.</div>
+        </div>
+
+        <div class="smallPanel">
+          <label for="seriesCount">عدد منشورات السلسلة</label>
+          <input id="seriesCount" type="number" min="2" max="12" value="5" />
+          <div class="hint">يُستخدم فقط عندما يكون الوضع Series.</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div style="grid-column: 1 / -1;">
+          <label for="goal">هدفك خلال الفترة القادمة (اختياري)</label>
+          <input id="goal" placeholder="مثال: زيادة الطلب على الاستشارات / بناء سلطة في حوكمة الشركات / جذب عملاء جدد..." />
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label for="trends">الترندات (اختياري — اكتبها مفصولة بفواصل)</label>
+        <input id="trends" placeholder="مثال: #رؤية_2030, #حوكمة, #AI, موسم الرياض..." />
+        <div class="hint">حالياً الترند يدوي. لاحقاً نربطه بمصدر ترندات.</div>
       </div>
 
       <div class="actions">
-        <button id="btn" class="btn" onclick="run()">توليد المحتوى</button>
+        <button id="btnGenerate" class="primary">توليد المحتوى</button>
+        <button id="btnCopyAll" class="ghost">نسخ الكل</button>
+        <button id="btnClear" class="ghost">مسح</button>
 
-        <button id="copyClean" class="btn btn--ghost" onclick="copyClean()">نسخ نظيف</button>
-
-        <div class="meta">
-          <span id="status" class="status">جاهز</span>
-          <span id="debug" class="debug"></span>
+        <div class="kpis" style="margin-right:auto">
+          <span id="status" class="kpi">—</span>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="row">
-      <div class="panel">
-        <div class="panel__head">
-          <div class="panel__title">X</div>
-          <div class="panel__tools">
-            <span class="counter" id="xCount">0/280</span>
-            <button class="mini" onclick="copyText('xOut')">نسخ X</button>
+    <!-- OUTPUT -->
+    <div class="grid two">
+      <div class="outCard">
+        <div class="outHead">
+          <div class="outTitle">X</div>
+          <div class="counter"><span id="xCount">0</span>/280</div>
+        </div>
+        <div id="xOut" class="mono">—</div>
+        <button class="copyBtn" id="btnCopyX">نسخ X</button>
+      </div>
+
+      <div class="outCard">
+        <div class="outHead">
+          <div class="outTitle">LinkedIn</div>
+          <div class="outMeta" id="liMeta">—</div>
+        </div>
+        <div id="liOut" class="mono">—</div>
+        <button class="copyBtn" id="btnCopyLI">نسخ LinkedIn</button>
+      </div>
+    </div>
+
+    <!-- EXTRA: Series / Replies / Trend -->
+    <div class="panel" id="extraPanel" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div style="font-weight:800;">مخرجات إضافية</div>
+        <div id="extraMeta" class="hint">—</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid two">
+        <div class="outCard" style="min-height:260px;">
+          <div class="outHead">
+            <div class="outTitle">Series</div>
+            <div class="outMeta">سلسلة جاهزة</div>
           </div>
+          <div id="seriesOut" class="mono">—</div>
+          <button class="copyBtn" id="btnCopySeries">نسخ السلسلة</button>
         </div>
-        <pre class="panel__body" id="xOut"></pre>
-      </div>
 
-      <div class="panel">
-        <div class="panel__head">
-          <div class="panel__title">LinkedIn</div>
-          <div class="panel__tools">
-            <button class="mini" onclick="copyText('liOut')">نسخ LinkedIn</button>
+        <div class="outCard" style="min-height:260px;">
+          <div class="outHead">
+            <div class="outTitle">Replies</div>
+            <div class="outMeta">ردود مقترحة</div>
           </div>
+          <div id="repliesOut" class="mono">—</div>
+          <button class="copyBtn" id="btnCopyReplies">نسخ الردود</button>
         </div>
-        <pre class="panel__body" id="liOut"></pre>
       </div>
-    </section>
 
-    <section class="card history">
-      <div class="history__head">
-        <div class="history__title">آخر 3 توليدات</div>
-        <button class="mini" onclick="clearHistory()">مسح</button>
+      <div class="divider"></div>
+
+      <div class="outCard" style="min-height:140px;">
+        <div class="outHead">
+          <div class="outTitle">Trend Recommendation</div>
+          <div class="outMeta">انضم / تجاهل / عدّل</div>
+        </div>
+        <div id="trendOut" class="mono">—</div>
+        <button class="copyBtn" id="btnCopyTrend">نسخ الترند</button>
       </div>
-      <div id="historyList" class="history__list"></div>
-    </section>
+    </div>
 
-    <footer class="footer">Nashr © 2025 • Demo Version</footer>
-  </main>
+    <div class="footer">Nashr © 2025 • Demo Version</div>
+  </div>
 
-<script>
-  const LS_KEY = "nashr_history_v1";
-
-  function setDirByLang(lang) {
-    const html = document.documentElement;
-    if (lang === "en") {
-      html.lang = "en";
-      html.dir = "ltr";
-    } else {
-      html.lang = "ar";
-      html.dir = "rtl";
-    }
-  }
-
-  function updateXCount(text) {
-    const c = document.getElementById("xCount");
-    const n = (text || "").length;
-    c.textContent = `${n}/280`;
-  }
-
-  function renderOutputs(output) {
-    const xOut = document.getElementById("xOut");
-    const liOut = document.getElementById("liOut");
-
-    xOut.textContent = output?.x || "";
-    liOut.textContent = output?.linkedin || "";
-
-    updateXCount(output?.x || "");
-  }
-
-  function getCleanText() {
-    const x = (document.getElementById("xOut").textContent || "").trim();
-    const li = (document.getElementById("liOut").textContent || "").trim();
-    const platform = document.getElementById("platform").value;
-
-    if (platform.includes("LinkedIn") && platform.includes("X")) {
-      return [x ? `X:\n${x}` : "", li ? `LinkedIn:\n${li}` : ""]
-        .filter(Boolean)
-        .join("\n\n---\n\n")
-        .trim();
-    }
-    if (platform.includes("LinkedIn")) return li || "";
-    return x || "";
-  }
-
-  async function copyClean() {
-    const t = getCleanText();
-    if (!t) return alert("لا يوجد محتوى لنسخه");
-    await navigator.clipboard.writeText(t);
-    toast("✅ تم النسخ (نظيف)");
-  }
-
-  async function copyText(id) {
-    const t = (document.getElementById(id).textContent || "").trim();
-    if (!t) return alert("لا يوجد محتوى لنسخه");
-    await navigator.clipboard.writeText(t);
-    toast("✅ تم النسخ");
-  }
-
-  function toast(msg) {
-    const status = document.getElementById("status");
-    status.textContent = msg;
-    setTimeout(() => status.textContent = "جاهز", 1500);
-  }
-
-  function loadHistory() {
-    const el = document.getElementById("historyList");
-    el.innerHTML = "";
-    const raw = localStorage.getItem(LS_KEY);
-    const items = raw ? JSON.parse(raw) : [];
-
-    if (!items.length) {
-      el.innerHTML = `<div class="empty">لا يوجد سجل بعد</div>`;
-      return;
-    }
-
-    items.forEach((it, idx) => {
-      const card = document.createElement("div");
-      card.className = "history__item";
-      card.innerHTML = `
-        <div class="history__meta">
-          <div>${it.platform} • ${it.language.toUpperCase()}</div>
-          <div class="history__time">${new Date(it.ts).toLocaleString()}</div>
-        </div>
-        <pre class="history__text">${escapeHtml(it.clean)}</pre>
-        <div class="history__actions">
-          <button class="mini" data-i="${idx}">نسخ</button>
-        </div>
-      `;
-      card.querySelector("button").onclick = async () => {
-        await navigator.clipboard.writeText(it.clean);
-        toast("✅ تم نسخ السجل");
-      };
-      el.appendChild(card);
-    });
-  }
-
-  function saveHistory(entry) {
-    const raw = localStorage.getItem(LS_KEY);
-    const items = raw ? JSON.parse(raw) : [];
-    items.unshift(entry);
-    const trimmed = items.slice(0, 3);
-    localStorage.setItem(LS_KEY, JSON.stringify(trimmed));
-    loadHistory();
-  }
-
-  function clearHistory() {
-    localStorage.removeItem(LS_KEY);
-    loadHistory();
-    toast("🗑️ تم المسح");
-  }
-
-  function escapeHtml(s) {
-    return String(s || "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;");
-  }
-
-  async function run() {
-    const btn = document.getElementById("btn");
-    const status = document.getElementById("status");
-    const debug = document.getElementById("debug");
-
-    const text = document.getElementById("text").value.trim();
-    const platform = document.getElementById("platform").value;
-    const tone = document.getElementById("tone").value;
-    const audience = document.getElementById("audience").value;
-    const language = document.getElementById("language").value; // ar | en
-
-    setDirByLang(language);
-
-    if (!text) {
-      alert(language === "en" ? "Please write a topic." : "يرجى كتابة الفكرة أو الموضوع");
-      return;
-    }
-
-    btn.disabled = true;
-    status.textContent = language === "en" ? "⏳ Generating..." : "⏳ جاري التوليد...";
-    debug.textContent = "";
-
-    // clear outputs
-    renderOutputs({ x: "", linkedin: "" });
+  <script type="module">
+    // Optional: use agentPrompt.js if present (recommended)
+    // If it's missing or fails, we will still send raw fields to backend.
+    let buildNashrPrompt = null;
 
     try {
-      const res = await fetch("/api/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, platform, tone, audience, language })
-      });
+      const mod = await import("./agentPrompt.js");
+      buildNashrPrompt = mod.buildNashrPrompt || null;
+    } catch (e) {
+      // ignore
+    }
 
-      const data = await res.json();
+    const $ = (id) => document.getElementById(id);
 
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Generation failed");
+    const ideaEl = $("idea");
+    const platformEl = $("platform");
+    const toneEl = $("tone");
+    const audienceEl = $("audience");
+    const languageEl = $("language");
+    const modeEl = $("mode");
+    const goalEl = $("goal");
+    const goalHorizonEl = $("goalHorizon");
+    const seriesCountEl = $("seriesCount");
+    const trendsEl = $("trends");
+
+    const btnGenerate = $("btnGenerate");
+    const btnCopyAll = $("btnCopyAll");
+    const btnCopyX = $("btnCopyX");
+    const btnCopyLI = $("btnCopyLI");
+    const btnClear = $("btnClear");
+
+    const statusEl = $("status");
+    const chipHealth = $("chipHealth");
+
+    const xOut = $("xOut");
+    const liOut = $("liOut");
+    const xCount = $("xCount");
+    const liMeta = $("liMeta");
+
+    const extraPanel = $("extraPanel");
+    const extraMeta = $("extraMeta");
+    const seriesOut = $("seriesOut");
+    const repliesOut = $("repliesOut");
+    const trendOut = $("trendOut");
+    const btnCopySeries = $("btnCopySeries");
+    const btnCopyReplies = $("btnCopyReplies");
+    const btnCopyTrend = $("btnCopyTrend");
+
+    // ---------- Helpers ----------
+    const nowStr = () => {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
+    function setStatus(text, type="") {
+      statusEl.textContent = text || "—";
+      statusEl.style.color = type === "good" ? "var(--good)" : type === "bad" ? "var(--bad)" : "var(--muted)";
+    }
+
+    function setHealth(ok) {
+      chipHealth.classList.remove("good","bad","warn");
+      if (ok === true) {
+        chipHealth.classList.add("good");
+        chipHealth.textContent = "health ✓";
+      } else if (ok === false) {
+        chipHealth.classList.add("bad");
+        chipHealth.textContent = "health ✕";
+      } else {
+        chipHealth.classList.add("warn");
+        chipHealth.textContent = "health";
+      }
+    }
+
+    function countX(text) {
+      // Simple char count (Twitter has special rules, but this is fine for demo)
+      return (text || "").length;
+    }
+
+    function splitTrends(v) {
+      return (v || "")
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .slice(0, 20);
+    }
+
+    function safeText(v) {
+      return (typeof v === "string" ? v : "");
+    }
+
+    function normalizeLanguage(v) {
+      return (String(v).toLowerCase().includes("en") ? "en" : "ar");
+    }
+
+    function formatSeries(series) {
+      if (!Array.isArray(series) || !series.length) return "—";
+      return series.map((it, idx) => {
+        const day = it.day ?? (idx + 1);
+        const title = it.title ? ` — ${it.title}` : "";
+        const x = safeText(it.x).trim();
+        const li = safeText(it.linkedin).trim();
+        return `(${day})${title}\nX: ${x}\n---\nLinkedIn:\n${li}\n\n====================\n`;
+      }).join("\n");
+    }
+
+    function formatReplies(replies) {
+      if (!Array.isArray(replies) || !replies.length) return "—";
+      return replies.map((r, i) => {
+        const sc = safeText(r.scenario).trim() || `Scenario ${i+1}`;
+        const rep = safeText(r.reply).trim();
+        return `• ${sc}\n${rep}\n\n`;
+      }).join("");
+    }
+
+    function formatTrend(trend) {
+      if (!trend || typeof trend !== "object") return "—";
+      const suggested = safeText(trend.suggested);
+      const rec = safeText(trend.recommendation);
+      const why = safeText(trend.why);
+      return `Suggested: ${suggested || "—"}\nRecommendation: ${rec || "—"}\nWhy: ${why || "—"}`;
+    }
+
+    async function copyToClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("تم النسخ ✅", "good");
+      } catch (e) {
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        setStatus("تم النسخ ✅", "good");
+      }
+    }
+
+    // ---------- Health check ----------
+    async function healthCheck() {
+      try {
+        const res = await fetch("/health", { method: "GET" });
+        setHealth(res.ok);
+      } catch (e) {
+        setHealth(false);
+      }
+    }
+    healthCheck();
+    setInterval(healthCheck, 20000);
+
+    // ---------- Main run ----------
+    async function run() {
+      const idea = ideaEl.value.trim();
+      if (!idea) {
+        setStatus("اكتب الفكرة أولاً", "bad");
+        return;
       }
 
-      renderOutputs(data.output);
+      btnGenerate.disabled = true;
+      setStatus("جارٍ التوليد…", "");
+      extraPanel.style.display = "none";
 
-      status.textContent = language === "en" ? "✅ Done" : "✅ تم التوليد";
-      debug.textContent = `HTTP ${res.status}`;
+      const payload = {
+        idea,
+        platform: platformEl.value,
+        tone: toneEl.value,
+        audience: audienceEl.value,
+        language: languageEl.value,
+        mode: modeEl.value,
+        goal: goalEl.value.trim(),
+        goalHorizon: goalHorizonEl.value,
+        seriesCount: Number(seriesCountEl.value || 5),
+        trendContext: { trends: splitTrends(trendsEl.value) }
+      };
 
-      const clean = getCleanText();
-      saveHistory({
-        ts: Date.now(),
-        platform,
-        language,
-        clean
-      });
+      // If agentPrompt exists, we send prompt + the fields (backend can use either)
+      if (typeof buildNashrPrompt === "function") {
+        payload.prompt = buildNashrPrompt(payload);
+      }
 
-    } catch (err) {
-      status.textContent = language === "en" ? "❌ Error" : "❌ حدث خطأ";
-      debug.textContent = err?.message || "Unknown error";
-    } finally {
-      btn.disabled = false;
+      try {
+        const res = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();
+
+        let data = null;
+        try { data = JSON.parse(text); } catch (e) { /* ignore */ }
+
+        if (!res.ok) {
+          setStatus(`خطأ: HTTP ${res.status}`, "bad");
+          xOut.textContent = data?.error || text || "Server error";
+          liOut.textContent = "—";
+          xCount.textContent = "0";
+          liMeta.textContent = "—";
+          btnGenerate.disabled = false;
+          return;
+        }
+
+        // Support BOTH:
+        // A) old format: { ok:true, output:{x,linkedin,language,...} }
+        // B) new JSON: { ok:true, x:"", linkedin:"", series:[], replies:[], trend:{} }
+        const out = data?.output && typeof data.output === "object" ? data.output : data;
+
+        const x = safeText(out?.x);
+        const linkedin = safeText(out?.linkedin);
+
+        xOut.textContent = x || "—";
+        liOut.textContent = linkedin || "—";
+        xCount.textContent = String(countX(x));
+        liMeta.textContent = `Done  HTTP ${res.status}  •  ${nowStr()}`;
+
+        // Extra blocks
+        const hasSeries = Array.isArray(out?.series) && out.series.length;
+        const hasReplies = Array.isArray(out?.replies) && out.replies.length;
+        const hasTrend = out?.trend && typeof out.trend === "object";
+
+        if (hasSeries || hasReplies || hasTrend) {
+          extraPanel.style.display = "block";
+          extraMeta.textContent = "موجودة (Series/Replies/Trend)";
+
+          seriesOut.textContent = formatSeries(out.series);
+          repliesOut.textContent = formatReplies(out.replies);
+          trendOut.textContent = formatTrend(out.trend);
+        } else {
+          extraPanel.style.display = "none";
+        }
+
+        setStatus("✅ تم التوليد بنجاح", "good");
+      } catch (e) {
+        setStatus("تعذر الاتصال بالخادم", "bad");
+      } finally {
+        btnGenerate.disabled = false;
+      }
     }
-  }
 
-  // init
-  document.getElementById("language").addEventListener("change", (e) => {
-    setDirByLang(e.target.value);
-  });
+    // ---------- Events ----------
+    btnGenerate.addEventListener("click", run);
 
-  loadHistory();
-</script>
+    btnClear.addEventListener("click", () => {
+      ideaEl.value = "";
+      goalEl.value = "";
+      trendsEl.value = "";
+      xOut.textContent = "—";
+      liOut.textContent = "—";
+      xCount.textContent = "0";
+      liMeta.textContent = "—";
+      extraPanel.style.display = "none";
+      setStatus("تم المسح", "");
+      ideaEl.focus();
+    });
+
+    btnCopyX.addEventListener("click", () => copyToClipboard(xOut.textContent || ""));
+    btnCopyLI.addEventListener("click", () => copyToClipboard(liOut.textContent || ""));
+    btnCopySeries.addEventListener("click", () => copyToClipboard(seriesOut.textContent || ""));
+    btnCopyReplies.addEventListener("click", () => copyToClipboard(repliesOut.textContent || ""));
+    btnCopyTrend.addEventListener("click", () => copyToClipboard(trendOut.textContent || ""));
+
+    btnCopyAll.addEventListener("click", () => {
+      const blocks = [
+        `X:\n${xOut.textContent || ""}`,
+        `\n\n---\n\nLinkedIn:\n${liOut.textContent || ""}`
+      ];
+      if (extraPanel.style.display !== "none") {
+        blocks.push(`\n\n---\n\nSeries:\n${seriesOut.textContent || ""}`);
+        blocks.push(`\n\n---\n\nReplies:\n${repliesOut.textContent || ""}`);
+        blocks.push(`\n\n---\n\nTrend:\n${trendOut.textContent || ""}`);
+      }
+      copyToClipboard(blocks.join(""));
+    });
+
+    // Update X counter on changes
+    const updateCounter = () => xCount.textContent = String(countX(xOut.textContent || ""));
+    new MutationObserver(updateCounter).observe(xOut, { childList: true, subtree: true, characterData: true });
+
+  </script>
 </body>
 </html>
