@@ -1,329 +1,43 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Nashr — App</title>
-  <link rel="stylesheet" href="./styles.css" />
-  <style>
-    /* fallback minimal styles if styles.css missing */
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto; margin:0; background:#0b1220; color:#e8eefc;}
-    .wrap{max-width:1100px; margin:0 auto; padding:28px 16px;}
-    .panel{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:16px; margin-bottom:16px;}
-    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
-    label{font-size:12px; opacity:.85;}
-    select, textarea, button{border-radius:12px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:#e8eefc;}
-    select, button{padding:10px 12px;}
-    textarea{width:100%; min-height:120px; padding:12px;}
-    button.primary{background:#3b82f6; border-color:#3b82f6; cursor:pointer;}
-    button.ghost{background:transparent; cursor:pointer;}
-    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-    @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
-    .card{background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:12px; position:relative; min-height:170px;}
-    .card h3{margin:0 0 8px 0; font-size:14px; opacity:.9;}
-    .copy{position:absolute; top:10px; left:10px;}
-    .meta{display:flex; justify-content:space-between; font-size:12px; opacity:.75; margin-bottom:8px;}
-    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-    .ok{color:#22c55e}
-    .bad{color:#ef4444}
-    .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); font-size:12px;}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="panel">
-      <div class="row" style="justify-content:space-between">
-        <div>
-          <div style="font-size:28px; font-weight:700">Nashr</div>
-          <div style="opacity:.75">Demo Version — 2025</div>
-        </div>
-        <div class="row">
-          <a class="pill mono" href="/health" target="_blank">health</a>
-          <span class="pill mono">API: /api/run</span>
-        </div>
-      </div>
-
-      <div style="margin-top:14px">
-        <label>الفكرة / الموضوع</label>
-        <textarea id="idea" placeholder="اكتب الفكرة هنا..."></textarea>
-      </div>
-
-      <div class="row" style="margin-top:10px; justify-content:space-between">
-        <div class="row" style="flex:1">
-          <div style="min-width:180px; flex:1">
-            <label>اللغة</label>
-            <select id="language" style="width:100%">
-              <option>العربية</option>
-              <option>English</option>
-            </select>
-          </div>
-          <div style="min-width:180px; flex:1">
-            <label>الجمهور</label>
-            <select id="audience" style="width:100%">
-              <option>رواد الأعمال</option>
-              <option>مدراء تنفيذيون</option>
-              <option>المستثمرون</option>
-              <option>فرق التسويق</option>
-            </select>
-          </div>
-          <div style="min-width:180px; flex:1">
-            <label>النبرة</label>
-            <select id="tone" style="width:100%">
-              <option>احترافية</option>
-              <option>ملهمة</option>
-              <option>مختصرة وحادة</option>
-              <option>ودية</option>
-            </select>
-          </div>
-          <div style="min-width:180px; flex:1">
-            <label>المنصة</label>
-            <select id="platform" style="width:100%">
-              <option value="Both">LinkedIn + X</option>
-              <option value="LinkedIn">LinkedIn</option>
-              <option value="X">X</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <button id="copyAll" class="ghost">نسخ الكل</button>
-          <button id="btn" class="primary">توليد المحتوى</button>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px; justify-content:space-between">
-        <div class="pill mono" id="httpPill">—</div>
-        <div class="pill" id="statePill">الحالة: —</div>
-      </div>
-    </div>
-
-    <div class="grid">
-      <!-- X cards -->
-      <div class="panel">
-        <div class="row" style="justify-content:space-between; margin-bottom:10px">
-          <div class="pill mono">X (3 خيارات — كل خيار ≤ 280)</div>
-          <div class="pill mono" id="xCounter">0/280</div>
-        </div>
-
-        <div class="card">
-          <div class="meta"><span class="mono">X_1</span><span class="mono" id="x1len">0/280</span></div>
-          <button class="copy ghost" data-copy="x1">نسخ</button>
-          <pre id="x1" style="white-space:pre-wrap; margin:0"></pre>
-        </div>
-
-        <div style="height:10px"></div>
-
-        <div class="card">
-          <div class="meta"><span class="mono">X_2</span><span class="mono" id="x2len">0/280</span></div>
-          <button class="copy ghost" data-copy="x2">نسخ</button>
-          <pre id="x2" style="white-space:pre-wrap; margin:0"></pre>
-        </div>
-
-        <div style="height:10px"></div>
-
-        <div class="card">
-          <div class="meta"><span class="mono">X_3</span><span class="mono" id="x3len">0/280</span></div>
-          <button class="copy ghost" data-copy="x3">نسخ</button>
-          <pre id="x3" style="white-space:pre-wrap; margin:0"></pre>
-        </div>
-      </div>
-
-      <!-- LinkedIn cards -->
-      <div class="panel">
-        <div class="row" style="justify-content:space-between; margin-bottom:10px">
-          <div class="pill mono">LinkedIn (A/B/C)</div>
-          <div class="pill mono">language: <span id="langOut">ar</span></div>
-        </div>
-
-        <div class="card">
-          <div class="meta"><span class="mono">LinkedIn A</span><span class="mono" id="lalen">—</span></div>
-          <button class="copy ghost" data-copy="la">نسخ</button>
-          <pre id="la" style="white-space:pre-wrap; margin:0"></pre>
-        </div>
-
-        <div style="height:10px"></div>
-
-        <div class="card">
-          <div class="meta"><span class="mono">LinkedIn B</span><span class="mono" id="lblen">—</span></div>
-          <button class="copy ghost" data-copy="lb">نسخ</button>
-          <pre id="lb" style="white-space:pre-wrap; margin:0"></pre>
-        </div>
-
-        <div style="height:10px"></div>
-
-        <div class="card">
-          <div class="meta"><span class="mono">LinkedIn C</span><span class="mono" id="lclen">—</span></div>
-          <button class="copy ghost" data-copy="lc">نسخ</button>
-          <pre id="lc" style="white-space:pre-wrap; margin:0"></pre>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel" style="opacity:.8">
-      <div class="mono">Logs</div>
-      <pre id="debug" class="mono" style="white-space:pre-wrap; margin:8px 0 0 0; opacity:.85"></pre>
-    </div>
-  </div>
-
 <script>
-  const idea = document.getElementById("idea");
-  const platform = document.getElementById("platform");
-  const tone = document.getElementById("tone");
-  const audience = document.getElementById("audience");
-  const language = document.getElementById("language");
+  const ADMIN_TOKEN = "nashr_dev_admin_2025";
 
-  const btn = document.getElementById("btn");
-  const copyAll = document.getElementById("copyAll");
+  async function run() {
+    const topic = document.getElementById("topic").value;
 
-  const httpPill = document.getElementById("httpPill");
-  const statePill = document.getElementById("statePill");
-  const debug = document.getElementById("debug");
-
-  const xCounter = document.getElementById("xCounter");
-  const x1 = document.getElementById("x1");
-  const x2 = document.getElementById("x2");
-  const x3 = document.getElementById("x3");
-  const x1len = document.getElementById("x1len");
-  const x2len = document.getElementById("x2len");
-  const x3len = document.getElementById("x3len");
-
-  const la = document.getElementById("la");
-  const lb = document.getElementById("lb");
-  const lc = document.getElementById("lc");
-  const lalen = document.getElementById("lalen");
-  const lblen = document.getElementById("lblen");
-  const lclen = document.getElementById("lclen");
-
-  const langOut = document.getElementById("langOut");
-
-  function setState(ok, msg){
-    statePill.innerHTML = `الحالة: <b class="${ok ? "ok":"bad"}">${msg}</b>`;
-  }
-
-  function setHttp(status){
-    httpPill.textContent = status ? `HTTP ${status}` : "—";
-  }
-
-  function len(s){ return (s || "").length; }
-
-  function setXLen(el, s){
-    const n = len(s);
-    el.textContent = `${n}/280`;
-  }
-
-  function render(output){
-    // output: { linkedin:{A,B,C}, x:{1,2,3}, raw }
-    const x_1 = output?.x?.["1"] || "";
-    const x_2 = output?.x?.["2"] || "";
-    const x_3 = output?.x?.["3"] || "";
-
-    const lA = output?.linkedin?.A || "";
-    const lB = output?.linkedin?.B || "";
-    const lC = output?.linkedin?.C || "";
-
-    x1.textContent = x_1 || "—";
-    x2.textContent = x_2 || "—";
-    x3.textContent = x_3 || "—";
-
-    setXLen(x1len, x_1);
-    setXLen(x2len, x_2);
-    setXLen(x3len, x_3);
-
-    // show max length among X for top counter
-    const maxX = Math.max(len(x_1), len(x_2), len(x_3));
-    xCounter.textContent = `${maxX}/280`;
-
-    la.textContent = lA || "—";
-    lb.textContent = lB || "—";
-    lc.textContent = lC || "—";
-
-    lalen.textContent = lA ? `${len(lA)} chars` : "—";
-    lblen.textContent = lB ? `${len(lB)} chars` : "—";
-    lclen.textContent = lC ? `${len(lC)} chars` : "—";
-
-    // logs
-    debug.textContent = output?.raw ? output.raw.slice(0, 2000) : "";
-  }
-
-  async function copyText(text){
-    try{
-      await navigator.clipboard.writeText(text);
-      setState(true, "تم النسخ ✅");
-    }catch(e){
-      setState(false, "فشل النسخ");
-    }
-  }
-
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-copy]");
-    if (!btn) return;
-    const key = btn.getAttribute("data-copy");
-    const map = { x1, x2, x3, la, lb, lc };
-    const el = map[key];
-    if (!el) return;
-    copyText(el.textContent.trim());
-  });
-
-  copyAll.addEventListener("click", () => {
-    const bundle = [
-      "=== X_1 ===", x1.textContent.trim(),
-      "=== X_2 ===", x2.textContent.trim(),
-      "=== X_3 ===", x3.textContent.trim(),
-      "=== LinkedIn A ===", la.textContent.trim(),
-      "=== LinkedIn B ===", lb.textContent.trim(),
-      "=== LinkedIn C ===", lc.textContent.trim(),
-    ].join("\n\n");
-    copyText(bundle.trim());
-  });
-
-  btn.addEventListener("click", async () => {
-    setState(true, "جاري التوليد...");
-    setHttp("");
-    debug.textContent = "";
-    btn.disabled = true;
-
-    // clear outputs
-    x1.textContent = x2.textContent = x3.textContent = "";
-    la.textContent = lb.textContent = lc.textContent = "";
-    xCounter.textContent = "0/280";
-    x1len.textContent = x2len.textContent = x3len.textContent = "0/280";
-    lalen.textContent = lblen.textContent = lclen.textContent = "—";
+    const payload = {
+      topic,
+      platform: "LinkedIn + X",
+      tone: "احترافية",
+      audience: "رواد الأعمال",
+      language: "العربية",
+    };
 
     try {
-      const body = {
-        text: idea.value,
-        platform: platform.value,
-        tone: tone.value,
-        audience: audience.value,
-        language: language.value,
-      };
-
-      langOut.textContent = (language.value === "English") ? "en" : "ar";
-
-      const r = await fetch("/api/run", {
+      const res = await fetch("/api/run", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + ADMIN_TOKEN
+        },
+        body: JSON.stringify(payload)
       });
 
-      setHttp(r.status);
+      const data = await res.json();
 
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data?.ok) {
-        setState(false, "فشل ❌");
-        debug.textContent = data?.error || "Unknown error";
+      if (!data.ok) {
+        alert(data.error || "فشل التوليد");
         return;
       }
 
       render(data.output);
-      setState(true, "تم ✅");
+
     } catch (e) {
-      setState(false, "فشل ❌");
-      debug.textContent = e?.message || String(e);
-    } finally {
-      btn.disabled = false;
+      alert("خطأ في الاتصال");
+      console.error(e);
     }
-  });
+  }
+
+  function render(text) {
+    document.getElementById("output").innerText = text;
+  }
 </script>
-</body>
-</html>
