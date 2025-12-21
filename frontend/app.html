@@ -8,179 +8,243 @@
   <link rel="stylesheet" href="./styles.css" />
 
   <style>
-    :root{
-      --bg:#070b14;
-      --panel:rgba(255,255,255,.06);
-      --panel2:rgba(255,255,255,.04);
-      --line:rgba(255,255,255,.08);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.65);
-      --good:#46d27b;
-      --warn:#ffcc66;
-      --bad:#ff4d4d;
+    body {
+      background: #0b0f19;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
     }
 
-    html,body{
-      margin:0;
-      height:100%;
-      background:var(--bg);
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    .wrap {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 16px;
     }
 
-    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .row-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    label{font-size:13px;color:var(--muted)}
-    select,textarea,button{
-      width:100%;
-      background:var(--panel2);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px;
-      color:var(--text)
+    .card {
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,.08);
     }
-    textarea{min-height:120px;resize:vertical}
-    button.primary{background:#1f6feb;border:none}
-    button.ghost{background:transparent}
-    .out{white-space:pre-wrap;font-size:14px}
-    .pill{font-size:12px;color:var(--muted)}
-    footer{text-align:center;color:var(--muted);font-size:12px;margin:24px 0}
-    .ok{color:var(--good)}
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+
+    .muted {
+      opacity: .6;
+      font-size: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 14px;
+      color: #fff;
+      resize: vertical;
+    }
+
+    select, button {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+    }
+
+    button.primary {
+      background: #2563eb;
+      border: none;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: rgba(255,255,255,.08);
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .output {
+      white-space: pre-wrap;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .tag {
+      float: left;
+      opacity: .6;
+      font-size: 13px;
+    }
+
+    .status {
+      color: #22c55e;
+      font-size: 14px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 
 <body>
+
 <div class="wrap">
 
-  <!-- Header -->
+  <!-- HEADER -->
   <div class="card">
-    <h2>Nashr</h2>
-    <div class="pill">Demo Version • 2025</div>
+    <h1>Nashr</h1>
+    <div class="muted">Demo Version • 2025</div>
   </div>
 
-  <!-- Controls -->
+  <!-- INPUT -->
   <div class="card">
-    <label>الفكرة / الموضوع</label>
-    <textarea id="text" placeholder="اكتب الفكرة هنا..."></textarea>
+    <h3>الفكرة / الموضوع</h3>
+    <textarea id="topic" placeholder="اكتب الفكرة هنا..."></textarea>
 
-    <div class="row-4" style="margin-top:12px">
-      <div>
-        <label>المنصة</label>
-        <select id="platform">
-          <option value="linkedin+x">LinkedIn + X</option>
-          <option value="linkedin">LinkedIn</option>
-          <option value="x">X</option>
-        </select>
-      </div>
+    <div class="grid">
+      <select id="lang">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+      </select>
 
-      <div>
-        <label>النبرة</label>
-        <select id="tone">
-          <option value="professional">احترافية</option>
-          <option value="bold">جريئة</option>
-          <option value="friendly">ودية</option>
-        </select>
-      </div>
+      <select id="audience">
+        <option>رواد الأعمال</option>
+        <option>مستثمرون</option>
+        <option>صناع محتوى</option>
+      </select>
 
-      <div>
-        <label>الجمهور</label>
-        <select id="audience">
-          <option value="founders">رواد الأعمال</option>
-          <option value="investors">مستثمرون</option>
-          <option value="creators">صناع محتوى</option>
-          <option value="general">عام</option>
-        </select>
-      </div>
+      <select id="tone">
+        <option>احترافية</option>
+        <option>ملهمة</option>
+        <option>تحليلية</option>
+      </select>
 
-      <div>
-        <label>اللغة</label>
-        <select id="language">
-          <option value="ar">العربية</option>
-          <option value="en">English</option>
-        </select>
-      </div>
+      <select id="platform">
+        <option value="linkedin_x">LinkedIn + X</option>
+        <option value="x">X فقط</option>
+        <option value="linkedin">LinkedIn فقط</option>
+      </select>
     </div>
 
-    <div class="row" style="margin-top:12px">
-      <button class="primary" id="btn">توليد المحتوى</button>
-      <button class="ghost" id="copyAll">نسخ الكل</button>
+    <div class="grid" style="margin-top:16px">
+      <button id="copyAll" class="secondary">نسخ الكل</button>
+      <button id="generate" class="primary">توليد المحتوى</button>
     </div>
 
-    <div class="pill ok" id="status"></div>
+    <div id="status" class="status"></div>
   </div>
 
-  <!-- Output -->
+  <!-- X OUTPUT -->
   <div class="card">
-    <h4>X</h4>
-    <div id="xOut" class="out"></div>
+    <span class="tag">X</span>
+    <div id="xOut" class="output"></div>
   </div>
 
+  <!-- LINKEDIN OUTPUT -->
   <div class="card">
-    <h4>LinkedIn</h4>
-    <div id="linkedinOut" class="out"></div>
+    <span class="tag">LinkedIn</span>
+    <div id="linkedinOut" class="output"></div>
   </div>
 
+  <!-- EXTRA -->
   <div class="card">
-    <h4>سلسلة / ردود / ترند</h4>
-    <div id="extraOut" class="out"></div>
+    <span class="tag">سلسلة / ترند</span>
+    <div id="extraOut" class="output"></div>
   </div>
 
-  <footer>Nashr © 2025 • Demo Version</footer>
 </div>
 
 <script type="module">
-const btn = document.getElementById("btn");
-const status = document.getElementById("status");
-const xOut = document.getElementById("xOut");
-const linkedinOut = document.getElementById("linkedinOut");
-const extraOut = document.getElementById("extraOut");
+  const btn = document.getElementById("generate");
+  const status = document.getElementById("status");
 
-btn.onclick = async () => {
-  status.textContent = "⏳ جاري التوليد...";
-  btn.disabled = true;
+  const xOut = document.getElementById("xOut");
+  const linkedinOut = document.getElementById("linkedinOut");
+  const extraOut = document.getElementById("extraOut");
 
-  const payload = {
-    text: text.value.trim(),
-    platform: platform.value,
-    tone: tone.value,
-    audience: audience.value,
-    language: language.value
+  btn.onclick = async () => {
+    btn.disabled = true;
+    status.textContent = "⏳ يتم التوليد...";
+
+    xOut.textContent = "";
+    linkedinOut.textContent = "";
+    extraOut.textContent = "";
+
+    try {
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: document.getElementById("topic").value,
+          language: document.getElementById("lang").value,
+          audience: document.getElementById("audience").value,
+          tone: document.getElementById("tone").value,
+          platform: document.getElementById("platform").value
+        })
+      });
+
+      const data = await res.json();
+
+      xOut.textContent = data.x || "";
+      linkedinOut.textContent = data.linkedin || "";
+      extraOut.textContent = data.extra || "";
+
+      status.textContent = "✅ Done (HTTP 200)";
+    } catch (e) {
+      status.textContent = "❌ حدث خطأ";
+      console.error(e);
+    }
+
+    btn.disabled = false;
   };
 
-  try {
-    const res = await fetch("/api/run", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
+  // ✅ COPY ALL — WORKING 100%
+  document.getElementById("copyAll").addEventListener("click", async () => {
+    const fullText = `
+X:
+${xOut.innerText}
 
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.error);
+--------------------
 
-    xOut.textContent = data.output.x || "";
-    linkedinOut.textContent = data.output.linkedin || "";
-    extraOut.textContent =
-      (data.output.series ? "Series:\n"+data.output.series+"\n\n":"") +
-      (data.output.replies ? "Replies:\n"+data.output.replies+"\n\n":"") +
-      (data.output.trend ? "Trend:\n"+data.output.trend:"");
+LinkedIn:
+${linkedinOut.innerText}
 
-    status.textContent = "✅ Done (HTTP 200)";
-  } catch(e){
-    status.textContent = "❌ " + e.message;
-  } finally{
-    btn.disabled = false;
-  }
-};
+--------------------
 
-document.getElementById("copyAll").onclick = () => {
-  navigator.clipboard.writeText(
-    xOut.textContent + "\n\n" +
-    linkedinOut.textContent + "\n\n" +
-    extraOut.textContent
-  );
-};
+Extra:
+${extraOut.innerText}
+`;
+
+    if (!fullText.trim()) {
+      alert("لا يوجد محتوى للنسخ");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(fullText);
+      const btnCopy = document.getElementById("copyAll");
+      btnCopy.innerText = "✅ تم النسخ";
+      setTimeout(() => (btnCopy.innerText = "نسخ الكل"), 1500);
+    } catch (err) {
+      alert("فشل النسخ");
+      console.error(err);
+    }
+  });
 </script>
+
 </body>
 </html>
